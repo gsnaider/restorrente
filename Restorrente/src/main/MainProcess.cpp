@@ -70,9 +70,23 @@ void MainProcess::inicializarProcesos(){
 	iniciarProcesoCocinero();
 }
 
+void MainProcess::inicializarIPCs(){
+	semHayComensalesEnPuerta = new Semaforo(SEM_COMENSALES_EN_PUERTA_INIT_FILE, 0, 0);
+	semRecepcionistasLibres = new Semaforo(SEM_RECEPCIONISTAS_LIBRES_INIT_FILE, cantRecepcionistas, 0);
+	semMesasLibres = new Semaforo(SEM_MESAS_LIBRES_INIT_FILE, cantMesas, 0);
+	semCajaB = new Semaforo(SEM_CAJA_INIT_FILE, 0, 0);
+
+	for(int i = 0; i < cantMesas; i++){
+		semsLlegoComida.push_back(new Semaforo(SEM_LLEGO_COMIDA_INIT_FILE, 0, i));
+		semsMesaPago.push_back(new Semaforo(SEM_MESA_PAGO_INIT_FILE, 0, i));
+		semsFacturas.push_back(new Semaforo(SEM_FACTURA_INIT_FILE, 1, i));
+	}
+
+}
+
 void MainProcess::run(){
 
-	//TODO inicializar IPCs
+	inicializarIPCs();
 
 	inicializarProcesos();
 
@@ -85,7 +99,30 @@ void MainProcess::run(){
 }
 
 MainProcess::~MainProcess() {
-	// TODO Auto-generated destructor stub
+
+	semHayComensalesEnPuerta->eliminar();
+	delete semHayComensalesEnPuerta;
+
+	semRecepcionistasLibres->eliminar();
+	delete semRecepcionistasLibres;
+
+	semMesasLibres->eliminar();
+	delete semMesasLibres;
+
+	semCajaB->eliminar();
+	delete semCajaB;
+
+	for(int i = 0; i < cantMesas; i++){
+		semsLlegoComida[i]->eliminar();
+		delete semsLlegoComida[i];
+
+		semsMesaPago[i]->eliminar();
+		delete semsMesaPago[i];
+
+		semsFacturas[i]->eliminar();
+		delete semsFacturas[i];
+	}
+
 }
 
 } /* namespace std */

@@ -1,7 +1,7 @@
 #include "Semaforo.h"
 
-Semaforo :: Semaforo ( const std::string& nombre,const int valorInicial ):valorInicial(valorInicial) {
-	key_t clave = ftok ( nombre.c_str(),'a' );
+Semaforo :: Semaforo ( const std::string& nombre,const int valorInicial, const int hashKey ):valorInicial(valorInicial) {
+	key_t clave = ftok ( nombre.c_str(),hashKey );
 	this->id = semget ( clave,1,0666 | IPC_CREAT );
 
 	this->inicializar ();

@@ -19,6 +19,12 @@ private:
 	int cantRecepcionistas;
 	int cantMesas;
 
+	void inicializarProcesos();
+	void iniciarProcesosMozo();
+	void iniciarProcesosRecepcionista();
+	void iniciarProcesoCocinero();
+
+
 
 public:
 	MainProcess(const int cantRecepcionistas, const int cantMozos, const int cantMesas);

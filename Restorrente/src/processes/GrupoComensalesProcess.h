@@ -23,12 +23,14 @@ private:
 	Semaforo* semRecepcionistasLibres;
 	Semaforo* semComensalesEnPuerta;
 	Semaforo* semPersonasLivingB;
+	Semaforo* semMesasLibres;
+
 
 	MemoriaCompartida<int>* shmPersonasLiving;
 
 public:
 	GrupoComensalesProcess(int cantPersonas, Semaforo* semRecepcionistasLibres, Semaforo* semComensalesEnPuerta,
-			Semaforo* semPersonasLivingB, MemoriaCompartida<int>* shmPersonasLiving);
+			Semaforo* semPersonasLivingB, MemoriaCompartida<int>* shmPersonasLiving, Semaforo* semMesasLibres);
 	void run();
 	virtual ~GrupoComensalesProcess();
 };

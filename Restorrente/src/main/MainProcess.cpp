@@ -11,7 +11,8 @@
 #include <csignal>
 #include <cstdlib>
 #include <iostream>
-#include <string>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "../processes/CocineroProcess.h"
 #include "../processes/GrupoComensalesProcess.h"
@@ -98,7 +99,7 @@ void MainProcess::inicializarIPCs(){
 
 }
 
-void MainProcess::finalizarProcesos(){
+void MainProcess::finalizarProcesosRestaurant(){
 
 	for (unsigned int i = 0; i < idsRecepcionistas.size(); i++){
 		kill(idsRecepcionistas[i], 9);
@@ -106,10 +107,6 @@ void MainProcess::finalizarProcesos(){
 
 	for (unsigned int i = 0; i < idsMozos.size(); i++){
 		kill(idsMozos[i], 9);
-	}
-
-	for (unsigned int i = 0; i < idsComensales.size(); i++){
-		kill(idsComensales[i], 9);
 	}
 
 	kill(idCocinero, 9);
@@ -126,7 +123,7 @@ void MainProcess::simularLlegadaComensales(){
 		if (idComensal == 0){
 			GrupoComensalesProcess grupoComensalesProcess(4,
 					semRecepcionistasLibres, semComensalesEnPuerta,
-					semPersonasLivingB, shmPersonasLiving);
+					semPersonasLivingB, shmPersonasLiving, semMesasLibres);
 			grupoComensalesProcess.run();
 			exit(0);
 		} else {
@@ -140,14 +137,15 @@ void MainProcess::simularLlegadaComensales(){
 void MainProcess::run(){
 
 	inicializarProcesosRestaurant();
-
-
 	simularLlegadaComensales();
 
-	//TODO Habria que llevar la cuenta de los comensales que faltan por comer, y ahi hacer terminar todos los procesos.
-	sleep (120);
+	// Estoy asumiendo que los unicos que pueden terminar "por su cuenta" son los comensales cuando se van.
+	for (int i = 0; i < cantComensales; i++){
+		pid_t idHijo = wait(NULL);
+		cout << "Termino proceso hijo: " << idHijo << endl;
+	}
 
-	finalizarProcesos();
+	finalizarProcesosRestaurant();
 
 	/*
 	for (int i = 0; i < cantRecepcionistas + cantMozos + 1; i++){

@@ -14,12 +14,13 @@
 namespace std {
 
 GrupoComensalesProcess::GrupoComensalesProcess(int cantPersonas, Semaforo* semRecepcionistasLibres, Semaforo* semComensalesEnPuerta,
-		Semaforo* semPersonasLivingB, MemoriaCompartida<int>* shmPersonasLiving) {
+		Semaforo* semPersonasLivingB, MemoriaCompartida<int>* shmPersonasLiving, Semaforo* semMesasLibres) {
 	this->cantPersonas = cantPersonas;
 	this->semComensalesEnPuerta = semComensalesEnPuerta;
 	this->semRecepcionistasLibres = semRecepcionistasLibres;
 	this->semPersonasLivingB = semPersonasLivingB;
 	this->shmPersonasLiving = shmPersonasLiving;
+	this->semMesasLibres = semMesasLibres;
 
 	this->shmPersonasLiving->crear(SHM_PERSONAS_LIVING, 0);
 }
@@ -44,7 +45,7 @@ void GrupoComensalesProcess::run(){
 	shmPersonasLiving->escribir(personasLiving + 1);
 	semPersonasLivingB->v();
 
-	// TODO Esperar mesa.
+	semMesasLibres->p();
 	cout << getpid() << " " << "INFO: Grupo de comensales llendo a la mesa" << endl;
 
 
@@ -60,11 +61,19 @@ void GrupoComensalesProcess::run(){
 	cout << getpid() << " " << "DEBUG: Liberando memoria personas living " << endl;
 	shmPersonasLiving->liberar();
 
+/*
 	//TODO Ver si hay mejor forma que while(true).
 	while(true){
 		//Logica de procesos
 		sleep(1);
 	}
+
+*/
+	//comiendo.
+	sleep(30);
+
+	cout << getpid() << " " << "INFO: Grupo de comensales se va de la mesa" << endl;
+	semMesasLibres->v();
 
 }
 

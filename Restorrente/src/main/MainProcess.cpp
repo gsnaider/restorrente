@@ -7,12 +7,13 @@
 
 #include "MainProcess.h"
 
-#include <sys/wait.h>
 #include <unistd.h>
+#include <csignal>
 #include <cstdlib>
 #include <iostream>
 
 #include "../processes/CocineroProcess.h"
+#include "../processes/GrupoComensalesProcess.h"
 #include "../processes/MozoProcess.h"
 #include "../processes/RecepcionistaProcess.h"
 
@@ -28,10 +29,11 @@ const string SEM_MESA_PAGO_INIT_FILE = "ipc-init-files/sem_mesa_pago.txt";
 const string SEM_FACTURA_INIT_FILE = "ipc-init-files/sem_factura.txt";
 
 
-MainProcess::MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas) {
+MainProcess::MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas, int cantComensales) {
 	this->cantRecepcionistas = cantRecepcionistas;
 	this->cantMozos = cantMozos;
 	this->cantMesas = cantMesas;
+	this->cantComensales = cantComensales;
 	inicializarIPCs();
 }
 
@@ -43,6 +45,8 @@ void MainProcess::iniciarProcesoCocinero(){
 		CocineroProcess cocinero;
 		cocinero.run();
 		exit(0);
+	} else {
+		this->idCocinero = idCocinero;
 	}
 }
 
@@ -56,6 +60,8 @@ void MainProcess::iniciarProcesosMozo(){
 			MozoProcess mozo;
 			mozo.run();
 			exit(0);
+		} else {
+			idsMozos.push_back(idMozo);
 		}
 
 	}
@@ -70,11 +76,13 @@ void MainProcess::iniciarProcesosRecepcionista(){
 			RecepcionistaProcess recepcionista(semRecepcionistasLibres, semComensalesEnPuerta);
 			recepcionista.run();
 			exit(0);
+		} else {
+			idsRecepcionistas.push_back(idRecepcionista);
 		}
 	}
 }
 
-void MainProcess::inicializarProcesos(){
+void MainProcess::inicializarProcesosRestaurant(){
 	iniciarProcesosRecepcionista();
 	iniciarProcesosMozo();
 	iniciarProcesoCocinero();
@@ -95,22 +103,61 @@ void MainProcess::inicializarIPCs(){
 
 }
 
+void MainProcess::finalizarProcesos(){
+
+	for (unsigned int i = 0; i < idsRecepcionistas.size(); i++){
+		kill(idsRecepcionistas[i], 9);
+	}
+
+	for (unsigned int i = 0; i < idsMozos.size(); i++){
+		kill(idsMozos[i], 9);
+	}
+
+	for (unsigned int i = 0; i < idsComensales.size(); i++){
+		kill(idsComensales[i], 9);
+	}
+
+	kill(idCocinero, 9);
+
+
+}
+
+void MainProcess::simularLlegadaComensales(){
+	for (int i = 0; i < cantComensales; i++){
+
+		cout << "Iniciando comensal " << i << endl;
+		pid_t idComensal = fork();
+
+		if (idComensal == 0){
+			GrupoComensalesProcess grupoComensalesProcess(4, semRecepcionistasLibres, semComensalesEnPuerta);
+			grupoComensalesProcess.run();
+			exit(0);
+		} else {
+			idsComensales.push_back(idComensal);
+		}
+
+	}
+
+}
+
 void MainProcess::run(){
 
-	inicializarProcesos();
+	inicializarProcesosRestaurant();
 
 
-	cout << "Llega un comensal" << endl;
-	semComensalesEnPuerta->v();
-	semRecepcionistasLibres->p();
-	cout << "Comensal siendo atendido" << endl;
-	sleep(TIEMPO_ANTENDIENDO);
+	simularLlegadaComensales();
 
+	//TODO Habria que llevar la cuenta de los comensales que faltan por comer, y ahi hacer terminar todos los procesos.
+	sleep(60);
 
+	finalizarProcesos();
+
+	/*
 	for (int i = 0; i < cantRecepcionistas + cantMozos + 1; i++){
 		pid_t idHijo = wait(NULL);
 		cout << "Termino proceso hijo: " << idHijo << endl;
 	}
+	*/
 
 }
 

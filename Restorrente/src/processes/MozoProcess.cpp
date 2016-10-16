@@ -18,7 +18,12 @@ MozoProcess::MozoProcess() {
 
 void MozoProcess::run(){
 	cout << "Mozo con pid: " << getpid() << endl;
-	//TODO Logica del proceso.
+
+	//TODO Ver si hay mejor forma que while(true).
+	while(true){
+		//TODO Agregar logica de proceso
+		sleep(1);
+	}
 }
 
 MozoProcess::~MozoProcess() {

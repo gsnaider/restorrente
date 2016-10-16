@@ -21,13 +21,13 @@ void RecepcionistaProcess::run(){
 	cout << "Iniciando recepcionista con pid: " << getpid() << endl;
 
 	//TODO Ver si hay mejor forma que while(true).
-//	while (true){
+	while (true){
 		cout << "Recepcionista " << getpid() << " esperando comensales." << endl;
 		semComensalesEnPuerta->p();
 		cout << "Recepcionista " << getpid() << " atendiendo grupo de comensales." << endl;
 		sleep(TIEMPO_ANTENDIENDO);
 		semRecepcionistasLibres->v();
-//	}
+	}
 
 
 }

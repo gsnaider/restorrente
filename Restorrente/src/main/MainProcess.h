@@ -22,6 +22,7 @@ private:
 	int cantMozos;
 	int cantRecepcionistas;
 	int cantMesas;
+	int cantComensales;
 
 	// TODO Deberia guardar referencias a IPCs, y tal vez tambien a los procesos hijos.
 	Semaforo* semComensalesEnPuerta;
@@ -33,19 +34,25 @@ private:
 	vector<Semaforo*> semsMesaPago;
 	vector<Semaforo*> semsFacturas;
 
+	vector<pid_t> idsRecepcionistas;
+	vector<pid_t> idsMozos;
+	vector<pid_t> idsComensales;
+	pid_t idCocinero;
 
 	void inicializarIPCs();
 
-	void inicializarProcesos();
+	void inicializarProcesosRestaurant();
 	void iniciarProcesosMozo();
 	void iniciarProcesosRecepcionista();
 	void iniciarProcesoCocinero();
 
+	void simularLlegadaComensales();
 
+	void finalizarProcesos();
 
 
 public:
-	MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas);
+	MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas, int cantComensales);
 	void run();
 	virtual ~MainProcess();
 };

@@ -19,7 +19,12 @@ CocineroProcess::CocineroProcess() {
 
 void CocineroProcess::run(){
 	cout << "Cocinero con pid: " << getpid() << endl;
-	//TODO Logica del proceso.
+
+	//TODO Ver si hay mejor forma que while(true).
+	while(true){
+		//TODO Agregar logica de proceso
+		sleep(1);
+	}
 }
 
 CocineroProcess::~CocineroProcess() {

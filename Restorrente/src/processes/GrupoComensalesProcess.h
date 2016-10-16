@@ -8,14 +8,20 @@
 #ifndef PROCESSES_GRUPOCOMENSALESPROCESS_H_
 #define PROCESSES_GRUPOCOMENSALESPROCESS_H_
 
+#include "../utils/ipc/semaphore/Semaforo.h"
+#include "RecepcionistaProcess.h"
+
 namespace std {
 
 class GrupoComensalesProcess {
 private:
 	int cantPersonas;
 
+	Semaforo* semRecepcionistasLibres;
+	Semaforo* semComensalesEnPuerta;
+
 public:
-	GrupoComensalesProcess();
+	GrupoComensalesProcess(int cantPersonas, Semaforo* semRecepcionistasLibres, Semaforo* semComensalesEnPuerta);
 	void run();
 	virtual ~GrupoComensalesProcess();
 };

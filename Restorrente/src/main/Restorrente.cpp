@@ -13,9 +13,9 @@ int main() {
 	int cantMozos = 10;
 	int cantRecepcionistas = 1;
 	int cantMesas = 15;
+	int cantComensales = 3;
 
-
-	MainProcess mainProcess(cantRecepcionistas, cantMozos, cantMesas);
+	MainProcess mainProcess(cantRecepcionistas, cantMozos, cantMesas, cantComensales);
 	mainProcess.run();
 
 

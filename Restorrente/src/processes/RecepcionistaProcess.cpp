@@ -12,14 +12,24 @@
 
 namespace std {
 
-RecepcionistaProcess::RecepcionistaProcess() {
-	// TODO Auto-generated constructor stub
-
+RecepcionistaProcess::RecepcionistaProcess(Semaforo* semRecepcionistasLibres, Semaforo* semComensalesEnPuerta) {
+	this->semRecepcionistasLibres = semRecepcionistasLibres;
+	this->semComensalesEnPuerta = semComensalesEnPuerta;
 }
 
 void RecepcionistaProcess::run(){
-	cout << "Recepcionista con pid: " << getpid() << endl;
-	//TODO Logica del proceso.
+	cout << "Iniciando recepcionista con pid: " << getpid() << endl;
+
+	//TODO Ver si hay mejor forma que while(true).
+//	while (true){
+		cout << "Recepcionista " << getpid() << " esperando comensales." << endl;
+		semComensalesEnPuerta->p();
+		cout << "Recepcionista " << getpid() << " atendiendo grupo de comensales." << endl;
+		sleep(TIEMPO_ANTENDIENDO);
+		semRecepcionistasLibres->v();
+//	}
+
+
 }
 
 RecepcionistaProcess::~RecepcionistaProcess() {

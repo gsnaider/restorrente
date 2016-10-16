@@ -11,7 +11,7 @@ int main() {
 
 	// TODO Leer de archivo de config.
 	int cantMozos = 10;
-	int cantRecepcionistas = 5;
+	int cantRecepcionistas = 1;
 	int cantMesas = 15;
 
 

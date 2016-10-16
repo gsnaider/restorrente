@@ -1,16 +1,40 @@
 
 
+#include <iostream>
+#include <string>
+
 #include "../model/Menu.h"
+#include "../model/Pedido.h"
 #include "../model/Plato.h"
+#include "../utils/serializer/LlamadoAMozoSerializer.h"
 #include "MainProcess.h"
 
 
 
 using namespace std;
 
+//TODO Borrar despues.
+int testSerializer(){
+
+	Plato plato1("Fideos con tuco", 50);
+
+	Plato plato2("Milanesa con papas fritas", 80);
+
+	Plato plato3("Ensalada mixta", 45.50);
+
+	Pedido pedido(5);
+
+	pedido.agregarPlato(plato1);
+	pedido.agregarPlato(plato2);
+	pedido.agregarPlato(plato3);
+
+	cout << LlamadoAMozoSerializer::serializar(pedido) << endl;
+}
+
 
 int main() {
 	//TODO Reemplazar todos los cout por el log.
+
 
 /*
 	// TODO Leer de archivo de config.

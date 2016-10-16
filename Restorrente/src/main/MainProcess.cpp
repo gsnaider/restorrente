@@ -7,17 +7,17 @@
 
 #include "MainProcess.h"
 
+#include <sys/wait.h>
 #include <unistd.h>
 #include <csignal>
 #include <cstdlib>
 #include <iostream>
-#include <sys/types.h>
-#include <sys/wait.h>
 
 #include "../processes/CocineroProcess.h"
 #include "../processes/GrupoComensalesProcess.h"
 #include "../processes/MozoProcess.h"
 #include "../processes/RecepcionistaProcess.h"
+#include "../utils/random/RandomUtil.h"
 
 namespace std {
 
@@ -190,11 +190,13 @@ void MainProcess::inicializarComensalesComensales(){
 		pid_t idComensal = fork();
 
 		if (idComensal == 0){
-			GrupoComensalesProcess grupoComensalesProcess(4,
-					semRecepcionistasLibres, semComensalesEnPuerta,
+			int cantPersonas = RandomUtil::randomInt(MAX_PERSONAS_POR_GRUPO);
+
+			GrupoComensalesProcess grupoComensalesProcess(cantPersonas, semRecepcionistasLibres, semComensalesEnPuerta,
 					semPersonasLivingB, shmPersonasLiving, semMesasLibres,
+					semsMesasLibres, shmMesasLibres,
 					pipeLlamadosAMozos, semsLlegoComida, semsComidaEnMesas,
-					semsMesaPago, menu);
+					shmComidaEnMesas, semsMesaPago, menu);
 			grupoComensalesProcess.run();
 			exit(0);
 		} else {

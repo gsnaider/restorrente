@@ -24,8 +24,8 @@ int main() {
 
 	int cantMozos = 10;
 	int cantRecepcionistas = 2;
-	int cantMesas = 5;
-	int cantComensales = 2;
+	int cantMesas = 2;
+	int cantComensales = 5;
 	Menu* menu = new Menu();
 
 	Plato plato1("Fideos con tuco", 50);

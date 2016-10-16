@@ -19,6 +19,7 @@
 namespace std {
 
 const double PROBABILIDAD_IRSE = 0.25;
+const int TIEMPO_COMER = 30;
 
 class GrupoComensalesProcess {
 private:
@@ -28,16 +29,23 @@ private:
 
 	Semaforo* semRecepcionistasLibres;
 	Semaforo* semComensalesEnPuerta;
-	Semaforo* semPersonasLivingB;
 	Semaforo* semMesasLibres;
 
+	Semaforo* semPersonasLivingB;
 	MemoriaCompartida<int>* shmPersonasLiving;
 
 	Pipe* pipeLlamadosAMozos;
 
 	vector<Semaforo*>* semsLlegoComida;
-	vector<Semaforo*>* semsComidaEnMesas;
 	vector<Semaforo*>* semsMesaPago;
+
+	vector<Semaforo*>* semsMesasLibres;
+	vector<MemoriaCompartida<bool>*>* shmMesasLibres;
+
+	vector<Semaforo*>* semsComidaEnMesas;
+	vector<MemoriaCompartida<Comida>*>* shmComidaEnMesas;
+
+
 
 	Menu* menu;
 
@@ -45,12 +53,17 @@ private:
 	void comer();
 	void irse();
 
+	int obtenerNumeroMesa();
+
+	void inicializarMemoriasCompartidas();
+
 
 public:
 	GrupoComensalesProcess(int cantPersonas, Semaforo* semRecepcionistasLibres, Semaforo* semComensalesEnPuerta,
 			Semaforo* semPersonasLivingB, MemoriaCompartida<int>* shmPersonasLiving, Semaforo* semMesasLibres,
+			vector<Semaforo*>* semsMesasLibres, vector<MemoriaCompartida<bool>*>* shmMesasLibres,
 			Pipe* pipeLlamadosAMozos, vector<Semaforo*>* semsLlegoComida, vector<Semaforo*>* semsComidaEnMesas,
-			vector<Semaforo*>* semsMesaPago, Menu* menu);
+			vector<MemoriaCompartida<Comida>*>* shmComidaEnMesas, vector<Semaforo*>* semsMesaPago, Menu* menu);
 
 	void run();
 	virtual ~GrupoComensalesProcess();

@@ -9,16 +9,21 @@
 
 #include <unistd.h>
 #include <iostream>
+#include <string>
 #include <vector>
 
+#include "../model/Comida.h"
+#include "../model/Pedido.h"
+#include "../model/Plato.h"
 #include "../utils/random/RandomUtil.h"
 
 namespace std {
 
 GrupoComensalesProcess::GrupoComensalesProcess(int cantPersonas, Semaforo* semRecepcionistasLibres, Semaforo* semComensalesEnPuerta,
 		Semaforo* semPersonasLivingB, MemoriaCompartida<int>* shmPersonasLiving, Semaforo* semMesasLibres,
+		vector<Semaforo*>* semsMesasLibres, vector<MemoriaCompartida<bool>*>* shmMesasLibres,
 		Pipe* pipeLlamadosAMozos, vector<Semaforo*>* semsLlegoComida, vector<Semaforo*>* semsComidaEnMesas,
-		vector<Semaforo*>* semsMesaPago, Menu* menu) {
+		vector<MemoriaCompartida<Comida>*>* shmComidaEnMesas, vector<Semaforo*>* semsMesaPago, Menu* menu) {
 
 	this->mesa = -1; //Despues se setea el valor real.
 
@@ -26,24 +31,79 @@ GrupoComensalesProcess::GrupoComensalesProcess(int cantPersonas, Semaforo* semRe
 	this->semComensalesEnPuerta = semComensalesEnPuerta;
 	this->semRecepcionistasLibres = semRecepcionistasLibres;
 	this->semPersonasLivingB = semPersonasLivingB;
-	this->shmPersonasLiving = shmPersonasLiving;
 	this->semMesasLibres = semMesasLibres;
 
-	this->shmPersonasLiving->crear(SHM_PERSONAS_LIVING, 0);
+	this->shmPersonasLiving = shmPersonasLiving;
+
 
 	this->pipeLlamadosAMozos = pipeLlamadosAMozos;
 
 	this->semsLlegoComida = semsLlegoComida;
-	this->semsComidaEnMesas = semsComidaEnMesas;
 	this->semsMesaPago = semsMesaPago;
 
+	this->semsMesasLibres = semsMesasLibres;
+	this->shmMesasLibres = shmMesasLibres;
+
+	this->semsComidaEnMesas = semsComidaEnMesas;
+	this->shmComidaEnMesas = shmComidaEnMesas;
+
 	this->menu = menu;
+
+	inicializarMemoriasCompartidas();
+}
+
+void GrupoComensalesProcess::inicializarMemoriasCompartidas(){
+	this->shmPersonasLiving->crear(SHM_PERSONAS_LIVING, 0);
+
+	for (unsigned int i = 0; i < shmMesasLibres->size(); i++){
+		shmMesasLibres->at(i)->crear(SHM_MESAS_LIBRES, i);
+	}
+
+	for (unsigned int i = 0; i < shmComidaEnMesas->size(); i++){
+		shmComidaEnMesas->at(i)->crear(SHM_COMIDA_MESAS, i);
+	}
+}
+
+int GrupoComensalesProcess::obtenerNumeroMesa(){
+	int mesa = -1;
+
+	cout << getpid() << " " << "INFO: Grupo de comensales buscando mesa libre. " <<  endl;
+
+	for (unsigned int i = 0; i < shmMesasLibres->size(); i++){
+
+		cout << getpid() << " " << "DEBUG: Grupo de comensales esperando semsMesasLibres: " << i <<  endl;
+		semsMesasLibres->at(i)->p();
+		cout << getpid() << " " << "DEBUG: Grupo de comensales obtuvo semsMesasLibres: " << i <<  endl;
+		cout << getpid() << " " << "DEBUG: shmMesasLibres size: " << shmMesasLibres->size() <<  endl;
+		bool mesaLibre = shmMesasLibres->at(i)->leer();
+		cout << getpid() << " " << "DEBUG: Grupo de comensales leyo de shmMesasLibres: " << mesaLibre <<  endl;
+		if (mesaLibre){
+			mesa = i;
+			cout << getpid() << " " << "INFO: Mesa libre encontrada. Nro mesa: " << mesa <<  endl;
+
+			cout << getpid() << " " << "INFO: Ocupando mesa nro: " << mesa <<  endl;
+			shmMesasLibres->at(i)->escribir(false);
+
+		}
+		cout << getpid() << " " << "DEBUG: Grupo de comensales liberando semsMesasLibres: " << i <<  endl;
+		semsMesasLibres->at(i)->v();
+
+		if (mesaLibre){
+			break;
+		}
+	}
+
+	if (mesa < 0){
+		cout << getpid() << " " << "ERROR: No se encontro la mesa libre" <<  endl;
+	}
+	return mesa;
+
 }
 
 
 void GrupoComensalesProcess::llegar(){
 
-	cout << getpid() << " " << "INFO: Llega grupo de comensales" <<  endl;
+	cout << getpid() << " " << "INFO: Llega grupo de comensales de " << cantPersonas << " personas" <<  endl;
 	semComensalesEnPuerta->v();
 	cout << getpid() << " " << "INFO: Grupo de comensales esperando recepcionista libre" << endl;
 	semRecepcionistasLibres->p();
@@ -73,22 +133,58 @@ void GrupoComensalesProcess::llegar(){
 	semPersonasLivingB->v();
 
 	cout << getpid() << " " << "DEBUG: Liberando memoria personas living " << endl;
-	shmPersonasLiving->liberar();
 
+	mesa = obtenerNumeroMesa();
 }
 
 void GrupoComensalesProcess::comer(){
 	bool seguirPidiendo = true;
 	while(seguirPidiendo){
+		cout << getpid() << " " << "INFO: Grupo de comensales eligiendo comida" << endl;
+		Pedido pedido(mesa);
 
+		for (int i = 0; i < cantPersonas; i++){
+			Plato plato = menu->getPlatoRandom();
+			cout << getpid() << " " << "INFO: Grupo de comensales elige " << plato.getNombre() << endl;
+			pedido.agregarPlato(plato);
+		}
 
+		cout << getpid() << " " << "INFO: Grupo de comensales pidiendo comida." << endl;
+		pipeLlamadosAMozos->escribir(static_cast<void*>(&pedido), sizeof(pedido));
 
+		cout << getpid() << " " << "INFO: Grupo de comensales esperando comida." << endl;
+		semsLlegoComida->at(mesa)->p();
+		cout << getpid() << " " << "INFO: Llego comida a mesa nro " << mesa << endl;
+
+		semsComidaEnMesas->at(mesa)->p();
+		Comida comida = shmComidaEnMesas->at(mesa)->leer();
+
+		cout << getpid() << " " << "INFO: Grupo de comensales empezando a comer" << endl;
+
+		vector<Plato> platos = comida.getPlatos();
+
+		for (unsigned int i = 0; i < platos.size(); i++){
+			cout << getpid() << " " << "INFO: Comiendo " << platos[i].getNombre() << endl;
+		}
+		sleep(TIEMPO_COMER);
+
+		cout << getpid() << " " << "INFO: Grupo de comensales termino de comer." << endl;
 
 		seguirPidiendo = (RandomUtil::randomCeroUno() < PROBABILIDAD_IRSE);
 	}
 }
 
 void GrupoComensalesProcess::irse(){
+
+	//TODO pagar
+
+
+	cout << getpid() << " " << "DEBUG: Grupo de comensales esperando semsMesasLibres " << mesa << endl;
+	semsMesasLibres->at(mesa)->p();
+	cout << getpid() << " " << "INFO: Grupo de comensales liberando la mesa nro " << mesa << endl;
+	shmMesasLibres->at(mesa)->escribir(true);
+	semsMesasLibres->at(mesa)->v();
+
 	cout << getpid() << " " << "INFO: Grupo de comensales se va de la mesa" << endl;
 	semMesasLibres->v();
 
@@ -98,13 +194,25 @@ void GrupoComensalesProcess::irse(){
 void GrupoComensalesProcess::run(){
 	cout << "DEBUG: Iniciando grupo de comensales con pid: " << getpid() << endl;
 	llegar();
-	comer();
-	irse();
 
+	//comer();
+	cout << getpid() << " " << "INFO: Grupo de comensales comiendo" << endl;
+	sleep(TIEMPO_COMER);
+
+
+	irse();
 }
 
 GrupoComensalesProcess::~GrupoComensalesProcess() {
-	// TODO Auto-generated destructor stub
+	this->shmPersonasLiving->liberar();
+
+	for (unsigned int i = 0; i < shmMesasLibres->size(); i++){
+		shmMesasLibres->at(i)->liberar();
+	}
+
+	for (unsigned int i = 0; i < shmComidaEnMesas->size(); i++){
+		shmComidaEnMesas->at(i)->liberar();
+	}
 }
 
 } /* namespace std */

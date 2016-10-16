@@ -1,16 +1,21 @@
 #include "Semaforo.h"
 
+#include <errno.h>
 #include <cstdio>
+#include <cstring>
+#include <iostream>
+
+using namespace std;
 
 Semaforo :: Semaforo ( const std::string& nombre,const int valorInicial, const int hashKey ):valorInicial(valorInicial) {
 	key_t clave = ftok ( nombre.c_str(),hashKey );
 	if (clave < 0){
-		perror("Error ftok semaforo.");
+		cout << "Error ftok semaforo " << strerror(errno) << endl;
 	}
 
 	this->id = semget ( clave,1,0666 | IPC_CREAT );
 	if (id < 0){
-		perror("Error semget.");
+		cout << "Error semget " << strerror(errno) << endl;
 	}
 
 	this->inicializar ();
@@ -31,7 +36,7 @@ int Semaforo :: inicializar () const {
 	init.val = this->valorInicial;
 	int resultado = semctl ( this->id,0,SETVAL,init );
 	if (resultado < 0){
-		perror("Error semctl (init).");
+		cout << "Error semctl (init) " << strerror(errno) << endl;
 	}
 
 	return resultado;
@@ -47,7 +52,7 @@ int Semaforo :: p () const {
 
 	int resultado = semop ( this->id,&operacion,1 );
 	if (resultado < 0){
-		perror("Error semop (p).");
+		cout << "Error semop (p) " << strerror(errno) << endl;
 	}
 	return resultado;
 }
@@ -62,7 +67,7 @@ int Semaforo :: v () const {
 
 	int resultado = semop ( this->id,&operacion,1 );
 	if (resultado < 0){
-		perror("Error semop (v).");
+		cout << "Error semop (v) " << strerror(errno) << endl;
 	}
 	return resultado;
 }
@@ -70,6 +75,6 @@ int Semaforo :: v () const {
 void Semaforo :: eliminar () const {
 	int resultado = semctl ( this->id,0,IPC_RMID );
 	if (resultado < 0){
-		perror("Error semctl (delete).");
+		cout << "Error semctl (delete) " << strerror(errno) << endl;
 	}
 }

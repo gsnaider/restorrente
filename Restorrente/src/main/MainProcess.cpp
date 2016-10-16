@@ -11,6 +11,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 
 #include "../processes/CocineroProcess.h"
 #include "../processes/GrupoComensalesProcess.h"
@@ -18,16 +19,6 @@
 #include "../processes/RecepcionistaProcess.h"
 
 namespace std {
-
-const string SEM_COMENSALES_EN_PUERTA_INIT_FILE = "ipc-init-files/sem_comensales_en_puerta.txt";
-const string SEM_RECEPCIONISTAS_LIBRES_INIT_FILE = "ipc-init-files/sem_recepcionistas_libres.txt";
-const string SEM_MESAS_LIBRES_INIT_FILE = "ipc-init-files/sem_mesas_libres.txt";
-const string SEM_PERSONAS_LIVING_INIT_FILE = "ipc-init-files/sem_personas_living.txt";
-const string SEM_CAJA_INIT_FILE = "ipc-init-files/sem_caja.txt";
-const string SEM_LLEGO_COMIDA_INIT_FILE = "ipc-init-files/sem_llego_comida.txt";
-const string SEM_MESA_PAGO_INIT_FILE = "ipc-init-files/sem_mesa_pago.txt";
-const string SEM_FACTURA_INIT_FILE = "ipc-init-files/sem_factura.txt";
-
 
 MainProcess::MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas, int cantComensales) {
 	this->cantRecepcionistas = cantRecepcionistas;
@@ -92,7 +83,7 @@ void MainProcess::inicializarIPCs(){
 	semComensalesEnPuerta = new Semaforo(SEM_COMENSALES_EN_PUERTA_INIT_FILE, 0, 0);
 	semRecepcionistasLibres = new Semaforo(SEM_RECEPCIONISTAS_LIBRES_INIT_FILE, cantRecepcionistas, 0);
 	semMesasLibres = new Semaforo(SEM_MESAS_LIBRES_INIT_FILE, cantMesas, 0);
-	semPersonasLivingB = new Semaforo(SEM_PERSONAS_LIVING_INIT_FILE, 0, 0);
+	semPersonasLivingB = new Semaforo(SEM_PERSONAS_LIVING_INIT_FILE, 1, 0);
 	semCajaB = new Semaforo(SEM_CAJA_INIT_FILE, 0, 0);
 
 	for(int i = 0; i < cantMesas; i++){
@@ -100,6 +91,10 @@ void MainProcess::inicializarIPCs(){
 		semsMesaPago.push_back(new Semaforo(SEM_MESA_PAGO_INIT_FILE, 0, i));
 		semsFacturas.push_back(new Semaforo(SEM_FACTURA_INIT_FILE, 1, i));
 	}
+
+
+	shmPersonasLiving = new MemoriaCompartida<int>(SHM_PERSONAS_LIVING, 0);
+	shmPersonasLiving->escribir(0);
 
 }
 
@@ -129,7 +124,9 @@ void MainProcess::simularLlegadaComensales(){
 		pid_t idComensal = fork();
 
 		if (idComensal == 0){
-			GrupoComensalesProcess grupoComensalesProcess(4, semRecepcionistasLibres, semComensalesEnPuerta);
+			GrupoComensalesProcess grupoComensalesProcess(4,
+					semRecepcionistasLibres, semComensalesEnPuerta,
+					semPersonasLivingB, shmPersonasLiving);
 			grupoComensalesProcess.run();
 			exit(0);
 		} else {
@@ -148,7 +145,7 @@ void MainProcess::run(){
 	simularLlegadaComensales();
 
 	//TODO Habria que llevar la cuenta de los comensales que faltan por comer, y ahi hacer terminar todos los procesos.
-	sleep(60);
+	sleep (60);
 
 	finalizarProcesos();
 
@@ -188,6 +185,9 @@ MainProcess::~MainProcess() {
 		semsFacturas[i]->eliminar();
 		delete semsFacturas[i];
 	}
+
+	//Destructor libera la memoria.
+	delete shmPersonasLiving;
 
 }
 

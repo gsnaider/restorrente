@@ -8,8 +8,11 @@
 #ifndef PROCESSES_GRUPOCOMENSALESPROCESS_H_
 #define PROCESSES_GRUPOCOMENSALESPROCESS_H_
 
+#include "../utils/ipc/shared-memory/MemoriaCompartida.h"
 #include "../utils/ipc/semaphore/Semaforo.h"
 #include "RecepcionistaProcess.h"
+#include "../main/MainProcess.h"
+
 
 namespace std {
 
@@ -19,9 +22,13 @@ private:
 
 	Semaforo* semRecepcionistasLibres;
 	Semaforo* semComensalesEnPuerta;
+	Semaforo* semPersonasLivingB;
+
+	MemoriaCompartida<int>* shmPersonasLiving;
 
 public:
-	GrupoComensalesProcess(int cantPersonas, Semaforo* semRecepcionistasLibres, Semaforo* semComensalesEnPuerta);
+	GrupoComensalesProcess(int cantPersonas, Semaforo* semRecepcionistasLibres, Semaforo* semComensalesEnPuerta,
+			Semaforo* semPersonasLivingB, MemoriaCompartida<int>* shmPersonasLiving);
 	void run();
 	virtual ~GrupoComensalesProcess();
 };

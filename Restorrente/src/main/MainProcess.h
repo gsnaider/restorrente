@@ -9,26 +9,56 @@
 #define PROCESSES_MAINPROCESS_H_
 
 #include <sched.h>
+#include <string>
 #include <vector>
 
+#include "../model/Comida.h"
 #include "../utils/ipc/semaphore/Semaforo.h"
 #include "../utils/ipc/shared-memory/MemoriaCompartida.h"
 
 namespace std {
 
+/*
+ * PARA CORRER DESDE ECLIPSE
 const string SEM_COMENSALES_EN_PUERTA_INIT_FILE = "ipc-init-files/sem_comensales_en_puerta.txt";
 const string SEM_COMENSALES_PENDIENTES_INIT_FILE = "ipc-init-files/sem_comensales_pendientes.txt";
 const string SEM_RECEPCIONISTAS_LIBRES_INIT_FILE = "ipc-init-files/sem_recepcionistas_libres.txt";
 const string SEM_MESAS_LIBRES_INIT_FILE = "ipc-init-files/sem_mesas_libres.txt";
 const string SEM_PERSONAS_LIVING_INIT_FILE = "ipc-init-files/sem_personas_living.txt";
 const string SEM_CAJA_INIT_FILE = "ipc-init-files/sem_caja.txt";
-const string SEM_LLEGO_COMIDA_INIT_FILE = "ipc-init-files/sem_llego_comida.txt";
-const string SEM_MESA_PAGO_INIT_FILE = "ipc-init-files/sem_mesa_pago.txt";
-const string SEM_FACTURA_INIT_FILE = "ipc-init-files/sem_factura.txt";
+const string SEMS_LLEGO_COMIDA_INIT_FILE = "ipc-init-files/sems_llego_comida.txt";
+const string SEMS_MESA_PAGO_INIT_FILE = "ipc-init-files/sems_mesa_pago.txt";
+const string SEMS_FACTURA_INIT_FILE = "ipc-init-files/sems_factura.txt";
+const string SEMS_MESAS_LIBRES_INIT_FILE = "ipc-init-files/sems_mesas_libres.txt";
+const string SEMS_COMIDA_MESAS_INIT_FILE = "ipc-init-files/sems_comida_mesas.txt";
 
 const string SHM_PERSONAS_LIVING = "ipc-init-files/shm_personas_living.txt";
 const string SHM_CAJA = "ipc-init-files/shm_caja.txt";
 const string SHM_FACTURAS = "ipc-init-files/shm_facturas.txt";
+const string SHM_MESAS_LIBRES = "ipc-init-files/shm_mesas_libres.txt";
+const string SHM_COMIDA_MESAS = "ipc-init-files/shm_comida_mesas.txt";
+*/
+
+
+const string SEM_COMENSALES_EN_PUERTA_INIT_FILE = "../ipc-init-files/sem_comensales_en_puerta.txt";
+const string SEM_COMENSALES_PENDIENTES_INIT_FILE = "../ipc-init-files/sem_comensales_pendientes.txt";
+const string SEM_RECEPCIONISTAS_LIBRES_INIT_FILE = "../ipc-init-files/sem_recepcionistas_libres.txt";
+const string SEM_MESAS_LIBRES_INIT_FILE = "../ipc-init-files/sem_mesas_libres.txt";
+const string SEM_PERSONAS_LIVING_INIT_FILE = "../ipc-init-files/sem_personas_living.txt";
+const string SEM_CAJA_INIT_FILE = "../ipc-init-files/sem_caja.txt";
+const string SEMS_LLEGO_COMIDA_INIT_FILE = "../ipc-init-files/sems_llego_comida.txt";
+const string SEMS_MESA_PAGO_INIT_FILE = "../ipc-init-files/sems_mesa_pago.txt";
+const string SEMS_FACTURA_INIT_FILE = "../ipc-init-files/sems_factura.txt";
+const string SEMS_MESAS_LIBRES_INIT_FILE = "../ipc-init-files/sems_mesas_libres.txt";
+const string SEMS_COMIDA_MESAS_INIT_FILE = "../ipc-init-files/sems_comida_mesas.txt";
+
+const string SHM_PERSONAS_LIVING = "../ipc-init-files/shm_personas_living.txt";
+const string SHM_CAJA = "../ipc-init-files/shm_caja.txt";
+const string SHM_FACTURAS = "../ipc-init-files/shm_facturas.txt";
+const string SHM_MESAS_LIBRES = "../ipc-init-files/shm_mesas_libres.txt";
+const string SHM_COMIDA_MESAS = "../ipc-init-files/shm_comida_mesas.txt";
+
+
 
 class MainProcess {
 
@@ -39,26 +69,29 @@ private:
 	int cantMesas;
 	int cantComensales;
 
-	// TODO Deberia guardar referencias a IPCs, y tal vez tambien a los procesos hijos.
-	Semaforo* semComensalesEnPuerta;
-	Semaforo* semRecepcionistasLibres;
-	Semaforo* semMesasLibres;
-	Semaforo* semPersonasLivingB;
-	Semaforo* semCajaB;
-	vector<Semaforo*> semsLlegoComida;
-	vector<Semaforo*> semsMesaPago;
-	vector<Semaforo*> semsFacturas;
-
 	vector<pid_t> idsRecepcionistas;
 	vector<pid_t> idsMozos;
 	vector<pid_t> idsComensales;
 	pid_t idCocinero;
 
+	Semaforo* semComensalesEnPuerta;
+	Semaforo* semRecepcionistasLibres;
+	Semaforo* semMesasLibres;
+	Semaforo* semPersonasLivingB;
+	Semaforo* semCajaB;
+	vector<Semaforo*>* semsLlegoComida;
+	vector<Semaforo*>* semsMesaPago;
+	vector<Semaforo*>* semsFacturas;
+	vector<Semaforo*>* semsMesasLibres;
+	vector<Semaforo*>* semsComidaEnMesas;
+
+
 	MemoriaCompartida<int>* shmPersonasLiving;
-
 	MemoriaCompartida<double>* shmCaja;
-	vector<MemoriaCompartida<double>*> shmFacturas;
 
+	vector<MemoriaCompartida<bool>*>* shmMesasLibres;
+	vector<MemoriaCompartida<Comida>*>* shmComidaEnMesas;
+	vector<MemoriaCompartida<double>*>* shmFacturas;
 
 	void inicializarIPCs();
 	void inicializarSemaforos();
@@ -74,6 +107,11 @@ private:
 	void inicializarComensalesComensales();
 
 	void finalizarProcesosRestaurant();
+
+	void eliminarIPCs();
+	void eliminarSemaforos();
+	void eliminarMemoriasCompartidas();
+	void eliminarPipesFifos();
 
 
 public:

@@ -26,6 +26,18 @@ MainProcess::MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas, i
 	this->cantMozos = cantMozos;
 	this->cantMesas = cantMesas;
 	this->cantComensales = cantComensales;
+
+
+	semsLlegoComida = new vector<Semaforo*>();
+	semsMesaPago = new vector<Semaforo*>();
+	semsFacturas = new vector<Semaforo*>();
+	semsMesasLibres = new vector<Semaforo*>();
+	semsComidaEnMesas = new vector<Semaforo*>();
+	shmMesasLibres = new vector<MemoriaCompartida<bool>*>();
+	shmComidaEnMesas = new vector<MemoriaCompartida<Comida>*>();
+	shmFacturas = new vector<MemoriaCompartida<double>*>();
+
+
 	inicializarIPCs();
 }
 
@@ -88,28 +100,30 @@ void MainProcess::inicializarSemaforos(){
 	semCajaB = new Semaforo(SEM_CAJA_INIT_FILE, 1, 0);
 
 	for(int i = 0; i < cantMesas; i++){
-		semsLlegoComida.push_back(new Semaforo(SEM_LLEGO_COMIDA_INIT_FILE, 0, i));
-		semsMesaPago.push_back(new Semaforo(SEM_MESA_PAGO_INIT_FILE, 0, i));
-		semsFacturas.push_back(new Semaforo(SEM_FACTURA_INIT_FILE, 1, i));
+		semsLlegoComida->push_back(new Semaforo(SEMS_LLEGO_COMIDA_INIT_FILE, 0, i));
+		semsMesaPago->push_back(new Semaforo(SEMS_MESA_PAGO_INIT_FILE, 0, i));
+		semsFacturas->push_back(new Semaforo(SEMS_FACTURA_INIT_FILE, 1, i));
+		semsMesasLibres->push_back(new Semaforo(SEMS_MESAS_LIBRES_INIT_FILE, 1, i));
+		semsComidaEnMesas->push_back(new Semaforo(SEMS_COMIDA_MESAS_INIT_FILE, 1, i));
 	}
 }
 
 void MainProcess::inicializarMemoriasCompartidas(){
 	semPersonasLivingB->p();
 	shmPersonasLiving = new MemoriaCompartida<int>();
-//	shmPersonasLiving->crear(SHM_PERSONAS_LIVING, 0);
-//	shmPersonasLiving->escribir(0);
 
 	semCajaB->p();
 	shmCaja = new MemoriaCompartida<double>();
-//	shmCaja->crear(SHM_CAJA, 0);
-//	shmCaja->escribir(0);
 
 	for(int i = 0; i < cantMesas; i++){
-		semsFacturas[i]->p();
-		shmFacturas.push_back(new MemoriaCompartida<double>());
-//		shmFacturas[i]->crear(SHM_FACTURAS, i);
-//		shmFacturas[i]->escribir(0);
+		semsFacturas->at(i)->p();
+		shmFacturas->push_back(new MemoriaCompartida<double>());
+
+		semsMesasLibres->at(i)->p();
+		shmMesasLibres->push_back(new MemoriaCompartida<bool>());
+
+		semsComidaEnMesas->at(i)->p();
+		shmComidaEnMesas->push_back(new MemoriaCompartida<Comida>());
 	}
 }
 
@@ -123,9 +137,18 @@ void MainProcess::crearMemoriasCompartidas(){
 	semCajaB->v();
 
 	for(int i = 0; i < cantMesas; i++){
-		shmFacturas[i]->crear(SHM_FACTURAS, i);
-		shmFacturas[i]->escribir(0);
-		semsFacturas[i]->v();
+		shmFacturas->at(i)->crear(SHM_FACTURAS, i);
+		shmFacturas->at(i)->escribir(0);
+		semsFacturas->at(i)->v();
+
+		shmMesasLibres->at(i)->crear(SHM_MESAS_LIBRES, i);
+		shmMesasLibres->at(i)->escribir(true);
+		semsMesasLibres->at(i)->v();
+
+		shmComidaEnMesas->at(i)->crear(SHM_COMIDA_MESAS, i);
+		semsComidaEnMesas->at(i)->v();
+
+
 	}
 }
 
@@ -193,7 +216,7 @@ void MainProcess::run(){
 
 }
 
-MainProcess::~MainProcess() {
+void MainProcess::eliminarSemaforos(){
 
 	semComensalesEnPuerta->eliminar();
 	delete semComensalesEnPuerta;
@@ -211,15 +234,25 @@ MainProcess::~MainProcess() {
 	delete semCajaB;
 
 	for(int i = 0; i < cantMesas; i++){
-		semsLlegoComida[i]->eliminar();
-		delete semsLlegoComida[i];
+		semsLlegoComida->at(i)->eliminar();
+		delete semsLlegoComida->at(i);
 
-		semsMesaPago[i]->eliminar();
-		delete semsMesaPago[i];
+		semsMesaPago->at(i)->eliminar();
+		delete semsMesaPago->at(i);
 
-		semsFacturas[i]->eliminar();
-		delete semsFacturas[i];
+		semsFacturas->at(i)->eliminar();
+		delete semsFacturas->at(i);
+
+		semsMesasLibres->at(i)->eliminar();
+		delete semsMesasLibres->at(i);
+
+		semsComidaEnMesas->at(i)->eliminar();
+		delete semsComidaEnMesas->at(i);
+
 	}
+}
+
+void MainProcess::eliminarMemoriasCompartidas(){
 
 	shmPersonasLiving->liberar();
 	delete shmPersonasLiving;
@@ -229,9 +262,42 @@ MainProcess::~MainProcess() {
 
 	for(int i = 0; i < cantMesas; i++){
 
-		shmFacturas[i]->liberar();
-		delete shmFacturas[i];
+		shmFacturas->at(i)->liberar();
+		delete shmFacturas->at(i);
+
+		shmMesasLibres->at(i)->liberar();
+		delete shmMesasLibres->at(i);
+
+		shmComidaEnMesas->at(i)->liberar();
+		delete shmComidaEnMesas->at(i);
+
 	}
+}
+
+void MainProcess::eliminarPipesFifos(){
+
+}
+
+
+void MainProcess::eliminarIPCs(){
+	eliminarPipesFifos();
+	eliminarMemoriasCompartidas();
+	eliminarSemaforos();
+}
+
+MainProcess::~MainProcess() {
+
+	eliminarIPCs();
+
+
+	delete semsLlegoComida;
+	delete semsMesaPago;
+	delete semsFacturas;
+	delete semsMesasLibres;
+	delete semsComidaEnMesas;
+	delete shmMesasLibres;
+	delete shmComidaEnMesas;
+	delete shmFacturas;
 
 }
 

@@ -27,7 +27,6 @@ GrupoComensalesProcess::GrupoComensalesProcess(int cantPersonas, Semaforo* semRe
 
 void GrupoComensalesProcess::run(){
 
-	sleep(20);
 	cout << "DEBUG: Iniciando grupo de comensales con pid: " << getpid() << endl;
 
 

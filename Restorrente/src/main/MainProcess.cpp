@@ -11,7 +11,8 @@
 #include <csignal>
 #include <cstdlib>
 #include <iostream>
-#include <string>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "../processes/CocineroProcess.h"
 #include "../processes/GrupoComensalesProcess.h"
@@ -29,7 +30,7 @@ MainProcess::MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas, i
 }
 
 void MainProcess::iniciarProcesoCocinero(){
-	cout << "Iniciando cocinero"<< endl;
+	cout << "DEBUG: Iniciando cocinero"<< endl;
 	pid_t idCocinero = fork();
 
 	if (idCocinero == 0){
@@ -43,7 +44,7 @@ void MainProcess::iniciarProcesoCocinero(){
 
 void MainProcess::iniciarProcesosMozo(){
 	for (int i = 0; i < cantMozos; i++){
-		cout << "Iniciando mozo " << i << endl;
+		cout << "DEBUG: Iniciando mozo " << i << endl;
 
 		pid_t idMozo = fork();
 
@@ -60,7 +61,7 @@ void MainProcess::iniciarProcesosMozo(){
 
 void MainProcess::iniciarProcesosRecepcionista(){
 	for (int i = 0; i < cantRecepcionistas; i++){
-		cout << "Iniciando recepcionista " << i << endl;
+		cout << "DEBUG: Iniciando recepcionista " << i << endl;
 		pid_t idRecepcionista = fork();
 
 		if (idRecepcionista == 0){
@@ -81,7 +82,7 @@ void MainProcess::inicializarProcesosRestaurant(){
 
 void MainProcess::inicializarIPCs(){
 	semComensalesEnPuerta = new Semaforo(SEM_COMENSALES_EN_PUERTA_INIT_FILE, 0, 0);
-	semRecepcionistasLibres = new Semaforo(SEM_RECEPCIONISTAS_LIBRES_INIT_FILE, cantRecepcionistas, 0);
+	semRecepcionistasLibres = new Semaforo(SEM_RECEPCIONISTAS_LIBRES_INIT_FILE, 0, 0); //cada recepcionista suma uno al semaforo cuando se inicia.
 	semMesasLibres = new Semaforo(SEM_MESAS_LIBRES_INIT_FILE, cantMesas, 0);
 	semPersonasLivingB = new Semaforo(SEM_PERSONAS_LIVING_INIT_FILE, 1, 0);
 	semCajaB = new Semaforo(SEM_CAJA_INIT_FILE, 0, 0);
@@ -98,7 +99,7 @@ void MainProcess::inicializarIPCs(){
 
 }
 
-void MainProcess::finalizarProcesos(){
+void MainProcess::finalizarProcesosRestaurant(){
 
 	for (unsigned int i = 0; i < idsRecepcionistas.size(); i++){
 		kill(idsRecepcionistas[i], 9);
@@ -106,10 +107,6 @@ void MainProcess::finalizarProcesos(){
 
 	for (unsigned int i = 0; i < idsMozos.size(); i++){
 		kill(idsMozos[i], 9);
-	}
-
-	for (unsigned int i = 0; i < idsComensales.size(); i++){
-		kill(idsComensales[i], 9);
 	}
 
 	kill(idCocinero, 9);
@@ -120,13 +117,13 @@ void MainProcess::finalizarProcesos(){
 void MainProcess::simularLlegadaComensales(){
 	for (int i = 0; i < cantComensales; i++){
 
-		cout << "Iniciando comensal " << i << endl;
+		cout << "DEBUG: Iniciando comensal " << i << endl;
 		pid_t idComensal = fork();
 
 		if (idComensal == 0){
 			GrupoComensalesProcess grupoComensalesProcess(4,
 					semRecepcionistasLibres, semComensalesEnPuerta,
-					semPersonasLivingB, shmPersonasLiving);
+					semPersonasLivingB, shmPersonasLiving, semMesasLibres);
 			grupoComensalesProcess.run();
 			exit(0);
 		} else {
@@ -140,14 +137,15 @@ void MainProcess::simularLlegadaComensales(){
 void MainProcess::run(){
 
 	inicializarProcesosRestaurant();
-
-
 	simularLlegadaComensales();
 
-	//TODO Habria que llevar la cuenta de los comensales que faltan por comer, y ahi hacer terminar todos los procesos.
-	sleep (60);
+	// Estoy asumiendo que los unicos que pueden terminar "por su cuenta" son los comensales cuando se van.
+	for (int i = 0; i < cantComensales; i++){
+		pid_t idHijo = wait(NULL);
+		cout << "Termino proceso hijo: " << idHijo << endl;
+	}
 
-	finalizarProcesos();
+	finalizarProcesosRestaurant();
 
 	/*
 	for (int i = 0; i < cantRecepcionistas + cantMozos + 1; i++){

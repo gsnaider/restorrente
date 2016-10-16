@@ -17,6 +17,7 @@
 namespace std {
 
 const string SEM_COMENSALES_EN_PUERTA_INIT_FILE = "ipc-init-files/sem_comensales_en_puerta.txt";
+const string SEM_COMENSALES_PENDIENTES_INIT_FILE = "ipc-init-files/sem_comensales_pendientes.txt";
 const string SEM_RECEPCIONISTAS_LIBRES_INIT_FILE = "ipc-init-files/sem_recepcionistas_libres.txt";
 const string SEM_MESAS_LIBRES_INIT_FILE = "ipc-init-files/sem_mesas_libres.txt";
 const string SEM_PERSONAS_LIVING_INIT_FILE = "ipc-init-files/sem_personas_living.txt";
@@ -63,7 +64,7 @@ private:
 
 	void simularLlegadaComensales();
 
-	void finalizarProcesos();
+	void finalizarProcesosRestaurant();
 
 
 public:

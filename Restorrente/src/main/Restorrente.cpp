@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
+#include "../model/Comida.h"
 #include "../model/Menu.h"
 #include "../model/Pedido.h"
 #include "../model/Plato.h"
@@ -14,7 +16,7 @@
 using namespace std;
 
 //TODO Borrar despues.
-int testSerializer(){
+int testSerializador(){
 
 	Plato plato1("Fideos con tuco", 50);
 
@@ -29,6 +31,18 @@ int testSerializer(){
 	pedido.agregarPlato(plato3);
 
 	cout << LlamadoAMozoSerializer::serializar(pedido) << endl;
+
+	cout << LlamadoAMozoSerializer::getTipoDato("%1%2%3%Fideos con tuco%50.00%Milanesa con papas fritas%80.00%Ensalada mixta%45.50%") << endl;
+
+	Comida comidaDes = LlamadoAMozoSerializer::deserializarComida("%2%2%3%Fideos con tuco%50.00%Milanesa con papas fritas%80.00%Ensalada mixta%45.50%");
+
+	cout << comidaDes.getMesa() << endl;
+
+	for (int i = 0; i < comidaDes.getPlatos().size(); i++){
+		cout << comidaDes.getPlatos().at(i).getNombre() << endl;
+		cout << comidaDes.getPlatos().at(i).getPrecio() << endl;
+	}
+
 }
 
 

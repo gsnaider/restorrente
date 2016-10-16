@@ -36,6 +36,8 @@ public:
 	static string serializar(Comida comida);
 	static string serializar(PedidoCuenta pedidoCuenta);
 
+	static int getTipoDato(string data);
+
 	static Pedido deserializarPedido(string pedidoStr);
 	static Comida deserializarComida(string comidaStr);
 	static PedidoCuenta deserializarPedidoCuenta(string pedidoCuentaStr);

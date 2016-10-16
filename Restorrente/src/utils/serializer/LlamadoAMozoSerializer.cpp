@@ -7,10 +7,15 @@
 
 #include "LlamadoAMozoSerializer.h"
 
+#include <stdlib.h>
+
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <vector>
+
+#include "../../model/Plato.h"
 
 namespace std {
 
@@ -20,7 +25,7 @@ LlamadoAMozoSerializer::LlamadoAMozoSerializer() {
 }
 
 string LlamadoAMozoSerializer::serializar(Pedido pedido){
-	string pedidoStr = intToString(PEDIDO) + SEPARADOR;
+	string pedidoStr = SEPARADOR + intToString(PEDIDO) + SEPARADOR;
 
 	pedidoStr = pedidoStr + intToString(pedido.getMesa()) + SEPARADOR;
 	pedidoStr = pedidoStr + intToString(pedido.getPlatos().size()) + SEPARADOR;
@@ -31,7 +36,7 @@ string LlamadoAMozoSerializer::serializar(Pedido pedido){
 	}
 
 	int length = pedidoStr.length();
-	pedidoStr  = intToString(length) + SEPARADOR + pedidoStr;
+	pedidoStr  = intToString(length) + pedidoStr;
 
 	return pedidoStr;
 
@@ -39,7 +44,7 @@ string LlamadoAMozoSerializer::serializar(Pedido pedido){
 
 string LlamadoAMozoSerializer::serializar(Comida comida) {
 
-	string comidaStr = intToString(COMIDA) + SEPARADOR;
+	string comidaStr = SEPARADOR + intToString(COMIDA) + SEPARADOR;
 
 	comidaStr = comidaStr + intToString(comida.getMesa()) + SEPARADOR;
 	comidaStr = comidaStr + intToString(comida.getPlatos().size()) + SEPARADOR;
@@ -50,32 +55,108 @@ string LlamadoAMozoSerializer::serializar(Comida comida) {
 	}
 
 	int length = comidaStr.length();
-	comidaStr  = intToString(length) + SEPARADOR + comidaStr;
+	comidaStr  = intToString(length) + comidaStr;
 
 	return comidaStr;
 }
 
 string LlamadoAMozoSerializer::serializar(PedidoCuenta pedidoCuenta) {
 
-	string pedidoCuentaStr = intToString(PEDIDO_CUENTA) + SEPARADOR;
+	string pedidoCuentaStr = SEPARADOR + intToString(PEDIDO_CUENTA) + SEPARADOR;
 
 	pedidoCuentaStr = pedidoCuentaStr + intToString(pedidoCuenta.getMesa()) + SEPARADOR;
 
 	int length = pedidoCuentaStr.length();
-	pedidoCuentaStr  = intToString(length) + SEPARADOR + pedidoCuentaStr;
+	pedidoCuentaStr  = intToString(length) + pedidoCuentaStr;
 
 	return pedidoCuentaStr;
 
 }
 
 Pedido LlamadoAMozoSerializer::deserializarPedido(string pedidoStr) {
+	istringstream ss(pedidoStr);
+	string aux;
+	string mesaStr;
+	string cantPlatosStr;
+	string nombrePlato;
+	string precioPlato;
+
+	getline(ss, aux, SEPARADOR); //Primer separador
+	getline(ss, aux, SEPARADOR); //Tipo de dato
+	getline(ss, mesaStr, SEPARADOR);
+
+	Pedido pedido(stoi(mesaStr));
+
+	getline(ss, cantPlatosStr, SEPARADOR);
+	int cantPlatos = stoi(cantPlatosStr);
+
+	for (int i = 0; i < cantPlatos; i++){
+		getline(ss, nombrePlato, SEPARADOR);
+		getline(ss, precioPlato, SEPARADOR);
+		Plato plato(nombrePlato, atof(precioPlato.c_str()));
+		pedido.agregarPlato(plato);
+	}
+
+
+	return pedido;
+
 }
 
 Comida LlamadoAMozoSerializer::deserializarComida(string comidaStr) {
+	istringstream ss(comidaStr);
+	string aux;
+	string mesaStr;
+	string cantPlatosStr;
+	string nombrePlato;
+	string precioPlato;
+
+	getline(ss, aux, SEPARADOR); //Primer separador
+	getline(ss, aux, SEPARADOR); //Tipo de dato
+	getline(ss, mesaStr, SEPARADOR);
+
+	Comida comida(stoi(mesaStr));
+
+	getline(ss, cantPlatosStr, SEPARADOR);
+	int cantPlatos = stoi(cantPlatosStr);
+
+	for (int i = 0; i < cantPlatos; i++){
+		getline(ss, nombrePlato, SEPARADOR);
+		getline(ss, precioPlato, SEPARADOR);
+		Plato plato(nombrePlato, atof(precioPlato.c_str()));
+		comida.agregarPlato(plato);
+	}
+
+
+	return comida;
+
 }
 
 PedidoCuenta LlamadoAMozoSerializer::deserializarPedidoCuenta(
 		string pedidoCuentaStr) {
+	istringstream ss(pedidoCuentaStr);
+	string aux;
+	string mesaStr;
+
+	getline(ss, aux, SEPARADOR); //Primer separador
+	getline(ss, aux, SEPARADOR); //Tipo de dato
+	getline(ss, mesaStr, SEPARADOR);
+
+	PedidoCuenta pedidoCuenta(stoi(mesaStr));
+
+	return pedidoCuenta;
+
+}
+
+int LlamadoAMozoSerializer::getTipoDato(string data) {
+
+	string aux;
+	string tipoDatoStr;
+	istringstream ss(data);
+
+	getline(ss, aux, SEPARADOR);
+	getline(ss, tipoDatoStr, SEPARADOR);
+
+	return stoi(tipoDatoStr);
 }
 
 string std::LlamadoAMozoSerializer::doubleToString(double d) {
@@ -89,6 +170,7 @@ string std::LlamadoAMozoSerializer::intToString(int i) {
 	stream <<  i;
 	return stream.str();
 }
+
 
 
 LlamadoAMozoSerializer::~LlamadoAMozoSerializer() {

@@ -19,15 +19,15 @@ class Comida : public LlamadoAMozo{
 
 private:
 	int mesa;
-	vector<Plato>* platos;
+	vector<Plato> platos;
 
 public:
-	Comida(vector<Plato>* platos, int mesa);
+	Comida(int mesa);
 
 	int getMesa();
 	void setMesa(int mesa);
-	vector<Plato>* getPlatos();
-	void setPlatos(vector<Plato>* platos);
+	vector<Plato> getPlatos();
+	void agregarPlato(Plato plato);
 
 	virtual ~Comida();
 

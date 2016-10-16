@@ -21,11 +21,12 @@
 
 namespace std {
 
-MainProcess::MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas, int cantComensales) {
+MainProcess::MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas, int cantComensales, Menu* menu) {
 	this->cantRecepcionistas = cantRecepcionistas;
 	this->cantMozos = cantMozos;
 	this->cantMesas = cantMesas;
 	this->cantComensales = cantComensales;
+	this->menu = menu;
 
 
 	semsLlegoComida = new vector<Semaforo*>();
@@ -61,7 +62,9 @@ void MainProcess::iniciarProcesosMozo(){
 		pid_t idMozo = fork();
 
 		if (idMozo == 0){
-			MozoProcess mozo;
+			MozoProcess mozo(pipeLlamadosAMozos, pipePedidosACocinar,
+					semsComidaEnMesas, shmComidaEnMesas, semsLlegoComida,
+					semsFacturas, shmFacturas, semCajaB, shmCaja, semsMesaPago);
 			mozo.run();
 			exit(0);
 		} else {
@@ -153,7 +156,8 @@ void MainProcess::crearMemoriasCompartidas(){
 }
 
 void MainProcess::inicializarPipesFifos(){
-
+	pipeLlamadosAMozos = new Pipe();
+	pipePedidosACocinar = new Pipe();
 }
 
 
@@ -188,7 +192,9 @@ void MainProcess::inicializarComensalesComensales(){
 		if (idComensal == 0){
 			GrupoComensalesProcess grupoComensalesProcess(4,
 					semRecepcionistasLibres, semComensalesEnPuerta,
-					semPersonasLivingB, shmPersonasLiving, semMesasLibres);
+					semPersonasLivingB, shmPersonasLiving, semMesasLibres,
+					pipeLlamadosAMozos, semsLlegoComida, semsComidaEnMesas,
+					semsMesaPago, menu);
 			grupoComensalesProcess.run();
 			exit(0);
 		} else {
@@ -275,7 +281,8 @@ void MainProcess::eliminarMemoriasCompartidas(){
 }
 
 void MainProcess::eliminarPipesFifos(){
-
+	delete pipeLlamadosAMozos;
+	delete pipePedidosACocinar;
 }
 
 
@@ -289,7 +296,6 @@ MainProcess::~MainProcess() {
 
 	eliminarIPCs();
 
-
 	delete semsLlegoComida;
 	delete semsMesaPago;
 	delete semsFacturas;
@@ -298,6 +304,8 @@ MainProcess::~MainProcess() {
 	delete shmMesasLibres;
 	delete shmComidaEnMesas;
 	delete shmFacturas;
+
+	delete menu;
 
 }
 

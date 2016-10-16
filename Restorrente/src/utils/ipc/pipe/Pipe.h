@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+using namespace std;
+
 class Pipe {
 
 private:

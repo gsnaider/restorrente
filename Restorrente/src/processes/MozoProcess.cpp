@@ -12,8 +12,22 @@
 
 namespace std {
 
-MozoProcess::MozoProcess() {
-	// TODO Auto-generated constructor stub
+MozoProcess::MozoProcess(Pipe* pipeLlamadosAMozos, Pipe* pipePedidosACocinar, vector<Semaforo*>* semsComidaEnMesas,
+		vector<MemoriaCompartida<Comida>*>* shmComidaEnMesas, vector<Semaforo*>* semsLlegoComida,
+		vector<Semaforo*>* semsFacturas, vector<MemoriaCompartida<double>*>* shmFacturas,
+		Semaforo* semCajaB, MemoriaCompartida<double>* shmCaja, vector<Semaforo*>* semsMesaPago) {
+
+	this->pipeLlamadosAMozos = pipeLlamadosAMozos;
+	this->pipePedidosACocinar = pipePedidosACocinar;
+	this->semsComidaEnMesas = semsComidaEnMesas;
+	this->shmComidaEnMesas = shmComidaEnMesas;
+	this->semsLlegoComida = semsLlegoComida;
+	this->semsFacturas = semsFacturas;
+	this->shmFacturas = shmFacturas;
+	this->semCajaB = semCajaB;
+	this->shmCaja = shmCaja;
+	this->semsMesaPago = semsMesaPago;
+
 }
 
 void MozoProcess::run(){

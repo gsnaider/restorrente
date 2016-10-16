@@ -1,7 +1,15 @@
 #include "Pipe.h"
 
+#include <errno.h>
+#include <cstring>
+#include <iostream>
+
+
 Pipe :: Pipe() : lectura(true), escritura(true) {
-	pipe ( this->descriptores );
+	int resultado = pipe ( this->descriptores );
+	if(resultado < 0){
+		cout << "Error creacion pipe: " << strerror(errno) << endl;
+	}
 	/*fcntl ( this->descriptors[0],F_SETFL,O_NONBLOCK );
 	fcntl ( this->descriptors[1],F_SETFL,O_NONBLOCK );*/
 }
@@ -11,18 +19,27 @@ Pipe::~Pipe() {
 
 void Pipe :: setearModo ( const int modo ) {
 	if ( modo == LECTURA ) {
-		close ( this->descriptores[1] );
+		int resultado = close ( this->descriptores[1] );
+		if(resultado < 0){
+			cout << "Error close pipe: " << strerror(errno) << endl;
+		}
 		this->escritura = false;
 
 	} else if ( modo == ESCRITURA ) {
-		close ( this->descriptores[0] );
+		int resultado = close ( this->descriptores[0] );
+		if(resultado < 0){
+			cout << "Error close pipe: " << strerror(errno) << endl;
+		}
 		this->lectura = false;
 	}
 }
 
 ssize_t Pipe :: escribir ( const void* dato,int datoSize ) {
 	if ( this->lectura == true ) {
-		close ( this->descriptores[0] );
+		int resultado = close ( this->descriptores[0] );
+		if(resultado < 0){
+			cout << "Error close pipe: " << strerror(errno) << endl;
+		}
 		this->lectura = false;
 	}
 
@@ -31,7 +48,10 @@ ssize_t Pipe :: escribir ( const void* dato,int datoSize ) {
 
 ssize_t Pipe :: leer ( void* buffer,const int buffSize ) {
 	if ( this->escritura == true ) {
-		close ( this->descriptores[1] );
+		int resultado = close ( this->descriptores[1] );
+		if(resultado < 0){
+			cout << "Error close pipe: " << strerror(errno) << endl;
+		}
 		this->escritura = false;
 	}
 
@@ -54,12 +74,18 @@ int Pipe :: getFdEscritura () const {
 
 void Pipe :: cerrar () {
 	if ( this->lectura == true ) {
-		close ( this->descriptores[0] );
+		int resultado = close ( this->descriptores[0] );
+		if(resultado < 0){
+			cout << "Error close pipe: " << strerror(errno) << endl;
+		}
 		this->lectura = false;
 	}
 
 	if ( this->escritura == true ) {
-		close ( this->descriptores[1] );
+		int resultado = close ( this->descriptores[1] );
+		if(resultado < 0){
+			cout << "Error close pipe: " << strerror(errno) << endl;
+		}
 		this->escritura = false;
 	}
 }

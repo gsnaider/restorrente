@@ -7,8 +7,7 @@
 
 #include "Pedido.h"
 
-Pedido::Pedido(vector<Plato>* platos, int mesa) {
-	this->platos = platos;
+Pedido::Pedido(int mesa) {
 	this->mesa = mesa;
 }
 
@@ -20,12 +19,12 @@ void Pedido::setMesa(int mesa) {
 	this->mesa = mesa;
 }
 
-vector<Plato>* Pedido::getPlatos(){
+vector<Plato> Pedido::getPlatos(){
 	return platos;
 }
 
-void Pedido::setPlatos(vector<Plato>* platos){
-	this->platos = platos;
+void Pedido::agregarPlato(Plato plato){
+	platos.push_back(plato);
 }
 
 Pedido::~Pedido() {

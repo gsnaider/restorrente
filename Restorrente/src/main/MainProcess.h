@@ -12,9 +12,12 @@
 #include <string>
 #include <vector>
 
+#include "../model/Menu.h"
 #include "../model/Comida.h"
 #include "../utils/ipc/semaphore/Semaforo.h"
 #include "../utils/ipc/shared-memory/MemoriaCompartida.h"
+#include "../utils/ipc/pipe/Pipe.h"
+
 
 namespace std {
 
@@ -68,6 +71,7 @@ private:
 	int cantRecepcionistas;
 	int cantMesas;
 	int cantComensales;
+	Menu* menu;
 
 	vector<pid_t> idsRecepcionistas;
 	vector<pid_t> idsMozos;
@@ -93,6 +97,9 @@ private:
 	vector<MemoriaCompartida<Comida>*>* shmComidaEnMesas;
 	vector<MemoriaCompartida<double>*>* shmFacturas;
 
+	Pipe* pipeLlamadosAMozos;
+	Pipe* pipePedidosACocinar;
+
 	void inicializarIPCs();
 	void inicializarSemaforos();
 	void inicializarMemoriasCompartidas();
@@ -115,7 +122,7 @@ private:
 
 
 public:
-	MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas, int cantComensales);
+	MainProcess(int cantRecepcionistas, int cantMozos, int cantMesas, int cantComensales, Menu* menu);
 	void run();
 	virtual ~MainProcess();
 };

@@ -7,14 +7,21 @@
 
 #include "GrupoComensalesProcess.h"
 
-
 #include <unistd.h>
 #include <iostream>
+#include <vector>
+
+#include "../utils/random/RandomUtil.h"
 
 namespace std {
 
 GrupoComensalesProcess::GrupoComensalesProcess(int cantPersonas, Semaforo* semRecepcionistasLibres, Semaforo* semComensalesEnPuerta,
-		Semaforo* semPersonasLivingB, MemoriaCompartida<int>* shmPersonasLiving, Semaforo* semMesasLibres) {
+		Semaforo* semPersonasLivingB, MemoriaCompartida<int>* shmPersonasLiving, Semaforo* semMesasLibres,
+		Pipe* pipeLlamadosAMozos, vector<Semaforo*>* semsLlegoComida, vector<Semaforo*>* semsComidaEnMesas,
+		vector<Semaforo*>* semsMesaPago, Menu* menu) {
+
+	this->mesa = -1; //Despues se setea el valor real.
+
 	this->cantPersonas = cantPersonas;
 	this->semComensalesEnPuerta = semComensalesEnPuerta;
 	this->semRecepcionistasLibres = semRecepcionistasLibres;
@@ -23,12 +30,18 @@ GrupoComensalesProcess::GrupoComensalesProcess(int cantPersonas, Semaforo* semRe
 	this->semMesasLibres = semMesasLibres;
 
 	this->shmPersonasLiving->crear(SHM_PERSONAS_LIVING, 0);
+
+	this->pipeLlamadosAMozos = pipeLlamadosAMozos;
+
+	this->semsLlegoComida = semsLlegoComida;
+	this->semsComidaEnMesas = semsComidaEnMesas;
+	this->semsMesaPago = semsMesaPago;
+
+	this->menu = menu;
 }
 
-void GrupoComensalesProcess::run(){
 
-	cout << "DEBUG: Iniciando grupo de comensales con pid: " << getpid() << endl;
-
+void GrupoComensalesProcess::llegar(){
 
 	cout << getpid() << " " << "INFO: Llega grupo de comensales" <<  endl;
 	semComensalesEnPuerta->v();
@@ -62,19 +75,31 @@ void GrupoComensalesProcess::run(){
 	cout << getpid() << " " << "DEBUG: Liberando memoria personas living " << endl;
 	shmPersonasLiving->liberar();
 
-/*
-	//TODO Ver si hay mejor forma que while(true).
-	while(true){
-		//Logica de procesos
-		sleep(1);
+}
+
+void GrupoComensalesProcess::comer(){
+	bool seguirPidiendo = true;
+	while(seguirPidiendo){
+
+
+
+
+		seguirPidiendo = (RandomUtil::randomCeroUno() < PROBABILIDAD_IRSE);
 	}
+}
 
-*/
-	//comiendo.
-	sleep(10);
-
+void GrupoComensalesProcess::irse(){
 	cout << getpid() << " " << "INFO: Grupo de comensales se va de la mesa" << endl;
 	semMesasLibres->v();
+
+}
+
+
+void GrupoComensalesProcess::run(){
+	cout << "DEBUG: Iniciando grupo de comensales con pid: " << getpid() << endl;
+	llegar();
+	comer();
+	irse();
 
 }
 

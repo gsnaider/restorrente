@@ -80,22 +80,64 @@ void MainProcess::inicializarProcesosRestaurant(){
 	iniciarProcesoCocinero();
 }
 
-void MainProcess::inicializarIPCs(){
+void MainProcess::inicializarSemaforos(){
 	semComensalesEnPuerta = new Semaforo(SEM_COMENSALES_EN_PUERTA_INIT_FILE, 0, 0);
 	semRecepcionistasLibres = new Semaforo(SEM_RECEPCIONISTAS_LIBRES_INIT_FILE, 0, 0); //cada recepcionista suma uno al semaforo cuando se inicia.
 	semMesasLibres = new Semaforo(SEM_MESAS_LIBRES_INIT_FILE, cantMesas, 0);
 	semPersonasLivingB = new Semaforo(SEM_PERSONAS_LIVING_INIT_FILE, 1, 0);
-	semCajaB = new Semaforo(SEM_CAJA_INIT_FILE, 0, 0);
+	semCajaB = new Semaforo(SEM_CAJA_INIT_FILE, 1, 0);
 
 	for(int i = 0; i < cantMesas; i++){
 		semsLlegoComida.push_back(new Semaforo(SEM_LLEGO_COMIDA_INIT_FILE, 0, i));
 		semsMesaPago.push_back(new Semaforo(SEM_MESA_PAGO_INIT_FILE, 0, i));
 		semsFacturas.push_back(new Semaforo(SEM_FACTURA_INIT_FILE, 1, i));
 	}
+}
 
+void MainProcess::inicializarMemoriasCompartidas(){
+	semPersonasLivingB->p();
+	shmPersonasLiving = new MemoriaCompartida<int>();
+//	shmPersonasLiving->crear(SHM_PERSONAS_LIVING, 0);
+//	shmPersonasLiving->escribir(0);
 
-	shmPersonasLiving = new MemoriaCompartida<int>(SHM_PERSONAS_LIVING, 0);
+	semCajaB->p();
+	shmCaja = new MemoriaCompartida<double>();
+//	shmCaja->crear(SHM_CAJA, 0);
+//	shmCaja->escribir(0);
+
+	for(int i = 0; i < cantMesas; i++){
+		semsFacturas[i]->p();
+		shmFacturas.push_back(new MemoriaCompartida<double>());
+//		shmFacturas[i]->crear(SHM_FACTURAS, i);
+//		shmFacturas[i]->escribir(0);
+	}
+}
+
+void MainProcess::crearMemoriasCompartidas(){
+	shmPersonasLiving->crear(SHM_PERSONAS_LIVING, 0);
 	shmPersonasLiving->escribir(0);
+	semPersonasLivingB->v();
+
+	shmCaja->crear(SHM_CAJA, 0);
+	shmCaja->escribir(0);
+	semCajaB->v();
+
+	for(int i = 0; i < cantMesas; i++){
+		shmFacturas[i]->crear(SHM_FACTURAS, i);
+		shmFacturas[i]->escribir(0);
+		semsFacturas[i]->v();
+	}
+}
+
+void MainProcess::inicializarPipesFifos(){
+
+}
+
+
+void MainProcess::inicializarIPCs(){
+	inicializarSemaforos();
+	inicializarMemoriasCompartidas();
+	inicializarPipesFifos();
 
 }
 
@@ -114,7 +156,7 @@ void MainProcess::finalizarProcesosRestaurant(){
 
 }
 
-void MainProcess::simularLlegadaComensales(){
+void MainProcess::inicializarComensalesComensales(){
 	for (int i = 0; i < cantComensales; i++){
 
 		cout << "DEBUG: Iniciando comensal " << i << endl;
@@ -137,22 +179,17 @@ void MainProcess::simularLlegadaComensales(){
 void MainProcess::run(){
 
 	inicializarProcesosRestaurant();
-	simularLlegadaComensales();
+	inicializarComensalesComensales();
+
+	crearMemoriasCompartidas();
 
 	// Estoy asumiendo que los unicos que pueden terminar "por su cuenta" son los comensales cuando se van.
 	for (int i = 0; i < cantComensales; i++){
 		pid_t idHijo = wait(NULL);
-		cout << "Termino proceso hijo: " << idHijo << endl;
+		cout << "DEBUG: Termino proceso hijo: " << idHijo << endl;
 	}
 
 	finalizarProcesosRestaurant();
-
-	/*
-	for (int i = 0; i < cantRecepcionistas + cantMozos + 1; i++){
-		pid_t idHijo = wait(NULL);
-		cout << "Termino proceso hijo: " << idHijo << endl;
-	}
-	*/
 
 }
 
@@ -184,8 +221,17 @@ MainProcess::~MainProcess() {
 		delete semsFacturas[i];
 	}
 
-	//Destructor libera la memoria.
+	shmPersonasLiving->liberar();
 	delete shmPersonasLiving;
+
+	shmCaja->liberar();
+	delete shmCaja;
+
+	for(int i = 0; i < cantMesas; i++){
+
+		shmFacturas[i]->liberar();
+		delete shmFacturas[i];
+	}
 
 }
 

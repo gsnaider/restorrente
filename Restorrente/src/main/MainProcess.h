@@ -27,7 +27,8 @@ const string SEM_MESA_PAGO_INIT_FILE = "ipc-init-files/sem_mesa_pago.txt";
 const string SEM_FACTURA_INIT_FILE = "ipc-init-files/sem_factura.txt";
 
 const string SHM_PERSONAS_LIVING = "ipc-init-files/shm_personas_living.txt";
-
+const string SHM_CAJA = "ipc-init-files/shm_caja.txt";
+const string SHM_FACTURAS = "ipc-init-files/shm_facturas.txt";
 
 class MainProcess {
 
@@ -55,14 +56,22 @@ private:
 
 	MemoriaCompartida<int>* shmPersonasLiving;
 
+	MemoriaCompartida<double>* shmCaja;
+	vector<MemoriaCompartida<double>*> shmFacturas;
+
+
 	void inicializarIPCs();
+	void inicializarSemaforos();
+	void inicializarMemoriasCompartidas();
+	void crearMemoriasCompartidas();
+	void inicializarPipesFifos();
 
 	void inicializarProcesosRestaurant();
 	void iniciarProcesosMozo();
 	void iniciarProcesosRecepcionista();
 	void iniciarProcesoCocinero();
 
-	void simularLlegadaComensales();
+	void inicializarComensalesComensales();
 
 	void finalizarProcesosRestaurant();
 

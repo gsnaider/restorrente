@@ -1,15 +1,17 @@
 /*
+
  * Parser.cpp
  *
  *  Created on: Oct 16, 2016
  *      Author: juampa_94
- */
+
 
 #include "Parser.h"
 
 
 #include <iostream>
 #include <string>
+
 using namespace std;
 
 Parser::Parser() {
@@ -19,7 +21,7 @@ Parser::~Parser() {
 }
 
 bool Parser::parse(string pathFile){
-    ifstream  data(pathFile);
+    ifstream data(pathFile);
 
     string line;
     getline(data,line);
@@ -46,3 +48,4 @@ int Parser::getCantMesas(){
 int Parser::getCantComensales(){
 	return this->cantComensales;
 }
+*/

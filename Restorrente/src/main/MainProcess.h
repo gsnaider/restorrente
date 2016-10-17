@@ -17,11 +17,13 @@
 #include "../utils/ipc/semaphore/Semaforo.h"
 #include "../utils/ipc/shared-memory/MemoriaCompartida.h"
 #include "../utils/ipc/pipe/Pipe.h"
+#include "../utils/Logger.h"
 
 
 namespace std {
 
 const int MAX_PERSONAS_POR_GRUPO = 5;
+const std::string logId = "MainProccess";
 
 /*
 // PARA CORRER DESDE ECLIPSE

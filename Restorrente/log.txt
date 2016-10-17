@@ -1,0 +1,53 @@
+/---------------------- 16-10-2016 19:43:38 ----------------------/
+19:43:38.353903	Main	21832	D.	Creando estructuras del juego
+/---------------------- 16-10-2016 19:45:12 ----------------------/
+19:45:12.241840	Main	21866	D.	Creando estructuras del juego
+/---------------------- 16-10-2016 19:49:04 ----------------------/
+19:49:04.855505	Main	21972	D.	Parseando el setup
+19:49:04.855779	Main	21972	D.	Inicializando el mainProcess 
+/---------------------- 16-10-2016 19:49:38 ----------------------/
+19:49:38.154462	Main	22005	D.	Parseando el setup
+19:49:38.154743	Main	22005	D.	Inicializando el mainProcess 
+/---------------------- 16-10-2016 20:00:17 ----------------------/
+20:00:17.599361	Main	22255	D.	Parseando el setup
+20:00:17.599645	Main	22255	D.	Inicializando el mainProcess 
+/---------------------- 16-10-2016 20:08:49 ----------------------/
+20:08:49.191743	Main	22444	D.	Parseando el setup
+20:08:49.192079	Main	22444	D.	Inicializando el mainProcess 
+/---------------------- 16-10-2016 20:20:48 ----------------------/
+20:20:48.120352	Main	22838	D.	Parseando el setup
+20:20:48.120632	Main	22838	D.	Inicializando el mainProcess 
+/---------------------- 16-10-2016 20:21:26 ----------------------/
+20:21:26.159817	Main	22877	D.	Parseando el setup
+20:21:26.163044	Main	22838	D.	Todos los procesos inicializados. Empiezan a correr
+20:21:26.163490	MainProccess	22838	D.	Iniciando recepcionista 0
+20:21:26.163895	MainProccess	22838	D.	Iniciando recepcionista 1
+20:21:26.164203	MainProccess	22838	D.	Iniciando mozo 0
+20:21:26.164502	MainProccess	22838	D.	Iniciando mozo 1
+20:21:26.165070	MainProccess	22838	D.	Iniciando mozo 2
+20:21:26.165631	MainProccess	22838	D.	Iniciando mozo 3
+20:21:26.166185	MainProccess	22838	D.	Iniciando mozo 4
+20:21:26.166737	MainProccess	22838	D.	Iniciando mozo 5
+20:21:26.167295	MainProccess	22838	D.	Iniciando mozo 6
+20:21:26.167955	MainProccess	22838	D.	Iniciando mozo 7
+20:21:26.168534	MainProccess	22838	D.	Iniciando mozo 8
+20:21:26.169481	MainProccess	22838	D.	Iniciando mozo 9
+20:21:26.169934	MainProccess	22838	D.	Inicializando cocinero 
+20:21:26.170252	MainProccess	22838	D.	Iniciando comensal 0
+20:21:26.170586	MainProccess	22838	D.	Iniciando comensal 1
+20:21:26.170914	MainProccess	22838	D.	Iniciando comensal 2
+20:21:26.171634	MainProccess	22838	D.	Iniciando comensal 3
+20:21:26.175420	MainProccess	22838	D.	Iniciando comensal 4
+/---------------------- 16-10-2016 20:24:20 ----------------------/
+20:24:20.539487	Main	23014	D.	Parseando el setup
+/---------------------- 16-10-2016 20:26:10 ----------------------/
+/---------------------- 16-10-2016 20:26:46 ----------------------/
+20:26:46.410303	Main	23123	D.	Inicializando el mainProcess 
+/---------------------- 16-10-2016 20:32:32 ----------------------/
+/---------------------- 16-10-2016 20:33:15 ----------------------/
+/---------------------- 16-10-2016 20:35:04 ----------------------/
+/---------------------- 16-10-2016 20:36:03 ----------------------/
+/---------------------- 16-10-2016 20:36:55 ----------------------/
+20:36:55.363801	Main	23573	D.	Inicializando el mainProcess 
+/---------------------- 16-10-2016 20:49:48 ----------------------/
+20:49:48.387515	Main	23919	D.	Inicializando el mainProcess 

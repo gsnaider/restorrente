@@ -17,13 +17,14 @@
 #include "../utils/ipc/semaphore/Semaforo.h"
 #include "../utils/ipc/shared-memory/MemoriaCompartida.h"
 #include "../utils/ipc/pipe/Pipe.h"
+#include "../utils/Logger.h"
 
 
 namespace std {
 
 const int MAX_PERSONAS_POR_GRUPO = 5;
+const std::string logId = "MainProccess";
 
-/*
 // PARA CORRER DESDE ECLIPSE
 const string SEM_COMENSALES_EN_PUERTA_INIT_FILE = "ipc-init-files/sem_comensales_en_puerta.txt";
 const string SEM_COMENSALES_PENDIENTES_INIT_FILE = "ipc-init-files/sem_comensales_pendientes.txt";
@@ -44,10 +45,9 @@ const string SHM_FACTURAS = "ipc-init-files/shm_facturas.txt";
 const string SHM_MESAS_LIBRES = "ipc-init-files/shm_mesas_libres.txt";
 const string SHM_COMIDA_MESAS = "ipc-init-files/shm_comida_mesas.txt";
 
-*/
 
 
-
+/*
 
 
 const string SEM_COMENSALES_EN_PUERTA_INIT_FILE = "../ipc-init-files/sem_comensales_en_puerta.txt";
@@ -69,7 +69,7 @@ const string SHM_FACTURAS = "../ipc-init-files/shm_facturas.txt";
 const string SHM_MESAS_LIBRES = "../ipc-init-files/shm_mesas_libres.txt";
 const string SHM_COMIDA_MESAS = "../ipc-init-files/shm_comida_mesas.txt";
 
-
+*/
 
 class MainProcess {
 

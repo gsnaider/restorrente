@@ -20,7 +20,7 @@
 namespace std {
 
 const double PROBABILIDAD_IRSE = 0.25;
-const int TIEMPO_COMER = 30;
+const int TIEMPO_COMER = 10;
 
 class GrupoComensalesProcess {
 private:

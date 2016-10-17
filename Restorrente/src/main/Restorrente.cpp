@@ -8,6 +8,8 @@
 #include "../model/Menu.h"
 #include "../model/Pedido.h"
 #include "../model/Plato.h"
+#include "../utils/Logger.h"
+#include "../utils/Parser/Parser.h"
 #include "../utils/serializer/LlamadoAMozoSerializer.h"
 #include "MainProcess.h"
 
@@ -61,7 +63,22 @@ int main() {
 	int cantMesas = p.getCantMesas();
 	int cantComensales = p.getCantComensales();
 */
+	Logger::log("Main", "Parseando el setup", DEBUG);
 
+	Parser p = Parser();
+	p.parsearDocumento("SetUp.xml");
+
+
+
+	int nivelDeLog = p.getNivelDeLog();
+	int cantMozos = p.gentCantMozos();
+	int cantRecepcionistas = p.getCantRecepcionistas();
+	int cantMesas = p.getCantMesas();
+	int cantComensales = p.getCantComensales();
+	Menu menu = p.getMenu();
+
+
+/*
 
 	int cantMozos = 2;
 	int cantRecepcionistas = 2;
@@ -78,10 +95,17 @@ int main() {
 	Plato plato3("Ensalada mixta", 45.50);
 	menu->agregarPlato(plato3);
 
+*/
+	LOG_MODE mode;
+	if(nivelDeLog == 0) mode = DEBUG;
+	else if(nivelDeLog == 1) mode = ERROR;
+	else mode = INFO;
 
-	MainProcess mainProcess(cantRecepcionistas, cantMozos, cantMesas, cantComensales, menu);
+	Logger::setMode(mode);
+	Logger::log("Main", "Inicializando el mainProcess ", DEBUG);
+	MainProcess mainProcess(cantRecepcionistas, cantMozos, cantMesas, cantComensales, &menu);
+	Logger::log("Main", "Todos los procesos inicializados. Empiezan a correr", DEBUG);
 	mainProcess.run();
-
 
 	return 0;
 }

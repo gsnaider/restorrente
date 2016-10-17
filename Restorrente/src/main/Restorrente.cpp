@@ -32,7 +32,7 @@ int testSerializador(){
 
 	cout << LlamadoAMozoSerializer::serializar(pedido) << endl;
 
-	cout << LlamadoAMozoSerializer::getTipoDato("%1%2%3%Fideos con tuco%50.00%Milanesa con papas fritas%80.00%Ensalada mixta%45.50%") << endl;
+	cout << LlamadoAMozoSerializer::getTipoLlamado("%1%2%3%Fideos con tuco%50.00%Milanesa con papas fritas%80.00%Ensalada mixta%45.50%") << endl;
 
 	Comida comidaDes = LlamadoAMozoSerializer::deserializarComida("%2%2%3%Fideos con tuco%50.00%Milanesa con papas fritas%80.00%Ensalada mixta%45.50%");
 
@@ -42,6 +42,8 @@ int testSerializador(){
 		cout << comidaDes.getPlatos().at(i).getNombre() << endl;
 		cout << comidaDes.getPlatos().at(i).getPrecio() << endl;
 	}
+
+	return 0;
 
 }
 
@@ -60,7 +62,8 @@ int main() {
 	int cantComensales = p.getCantComensales();
 */
 
-	int cantMozos = 10;
+
+	int cantMozos = 2;
 	int cantRecepcionistas = 2;
 	int cantMesas = 2;
 	int cantComensales = 5;

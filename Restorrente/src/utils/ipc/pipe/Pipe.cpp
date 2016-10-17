@@ -43,7 +43,11 @@ ssize_t Pipe :: escribir ( const void* dato,int datoSize ) {
 		this->lectura = false;
 	}
 
-	return write ( this->descriptores[1],dato,datoSize );
+	ssize_t bytesLeidos =  write ( this->descriptores[1],dato,datoSize );
+	if (bytesLeidos < 0){
+		cout << "Error escritura pipe: " << strerror(errno) << endl;
+	}
+	return bytesLeidos;
 }
 
 ssize_t Pipe :: leer ( void* buffer,const int buffSize ) {
@@ -55,7 +59,11 @@ ssize_t Pipe :: leer ( void* buffer,const int buffSize ) {
 		this->escritura = false;
 	}
 
-	return read ( this->descriptores[0],buffer,buffSize );
+	ssize_t bytesLeidos = read ( this->descriptores[0],buffer,buffSize );
+	if (bytesLeidos < 0){
+		cout << "Error lectura pipe: " << strerror(errno) << endl;
+	}
+	return bytesLeidos;
 }
 
 int Pipe :: getFdLectura () const {

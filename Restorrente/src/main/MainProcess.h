@@ -31,6 +31,7 @@ const string SEM_RECEPCIONISTAS_LIBRES_INIT_FILE = "ipc-init-files/sem_recepcion
 const string SEM_MESAS_LIBRES_INIT_FILE = "ipc-init-files/sem_mesas_libres.txt";
 const string SEM_PERSONAS_LIVING_INIT_FILE = "ipc-init-files/sem_personas_living.txt";
 const string SEM_CAJA_INIT_FILE = "ipc-init-files/sem_caja.txt";
+const string SEM_LLAMADOS_MOZOS_INIT_FILE = "ipc-init-files/sem_llamados_mozos.txt";
 const string SEMS_LLEGO_COMIDA_INIT_FILE = "ipc-init-files/sems_llego_comida.txt";
 const string SEMS_MESA_PAGO_INIT_FILE = "ipc-init-files/sems_mesa_pago.txt";
 const string SEMS_FACTURA_INIT_FILE = "ipc-init-files/sems_factura.txt";
@@ -55,6 +56,7 @@ const string SEM_RECEPCIONISTAS_LIBRES_INIT_FILE = "../ipc-init-files/sem_recepc
 const string SEM_MESAS_LIBRES_INIT_FILE = "../ipc-init-files/sem_mesas_libres.txt";
 const string SEM_PERSONAS_LIVING_INIT_FILE = "../ipc-init-files/sem_personas_living.txt";
 const string SEM_CAJA_INIT_FILE = "../ipc-init-files/sem_caja.txt";
+const string SEM_LLAMADOS_MOZOS_INIT_FILE = "../ipc-init-files/sem_llamados_mozos.txt";
 const string SEMS_LLEGO_COMIDA_INIT_FILE = "../ipc-init-files/sems_llego_comida.txt";
 const string SEMS_MESA_PAGO_INIT_FILE = "../ipc-init-files/sems_mesa_pago.txt";
 const string SEMS_FACTURA_INIT_FILE = "../ipc-init-files/sems_factura.txt";
@@ -89,6 +91,7 @@ private:
 	Semaforo* semMesasLibres;
 	Semaforo* semPersonasLivingB;
 	Semaforo* semCajaB;
+	Semaforo* semLlamadosAMozos;
 	vector<Semaforo*>* semsLlegoComida;
 	vector<Semaforo*>* semsMesaPago;
 	vector<Semaforo*>* semsFacturas;

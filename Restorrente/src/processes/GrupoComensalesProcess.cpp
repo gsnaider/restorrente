@@ -16,6 +16,7 @@
 #include "../model/Pedido.h"
 #include "../model/Plato.h"
 #include "../utils/random/RandomUtil.h"
+#include "../utils/serializer/LlamadoAMozoSerializer.h"
 
 namespace std {
 
@@ -101,6 +102,20 @@ int GrupoComensalesProcess::obtenerNumeroMesa(){
 }
 
 
+Pedido GrupoComensalesProcess::generarPedido() {
+	Pedido pedido(mesa);
+
+	for (int i = 0; i < cantPersonas; i++){
+		Plato plato = menu->getPlatoRandom();
+		cout << getpid() << " " << "INFO: Grupo de comensales elige " << plato.getNombre() << endl;
+		pedido.agregarPlato(plato);
+	}
+
+	return pedido;
+
+}
+
+
 void GrupoComensalesProcess::llegar(){
 
 	cout << getpid() << " " << "INFO: Llega grupo de comensales de " << cantPersonas << " personas" <<  endl;
@@ -141,16 +156,14 @@ void GrupoComensalesProcess::comer(){
 	bool seguirPidiendo = true;
 	while(seguirPidiendo){
 		cout << getpid() << " " << "INFO: Grupo de comensales eligiendo comida" << endl;
-		Pedido pedido(mesa);
 
-		for (int i = 0; i < cantPersonas; i++){
-			Plato plato = menu->getPlatoRandom();
-			cout << getpid() << " " << "INFO: Grupo de comensales elige " << plato.getNombre() << endl;
-			pedido.agregarPlato(plato);
-		}
+		Pedido pedido = generarPedido();
+		string pedidoStr = LlamadoAMozoSerializer::serializar(pedido);
 
 		cout << getpid() << " " << "INFO: Grupo de comensales pidiendo comida." << endl;
-		pipeLlamadosAMozos->escribir(static_cast<void*>(&pedido), sizeof(pedido));
+		cout << getpid() << " " << "DEBUG: Grupo de comensales escribiendo en pipeLlamadosAMozos: " << pedidoStr << endl;
+
+		pipeLlamadosAMozos->escribir(static_cast<const void*>(pedidoStr.c_str()), pedidoStr.size());
 
 		cout << getpid() << " " << "INFO: Grupo de comensales esperando comida." << endl;
 		semsLlegoComida->at(mesa)->p();
@@ -195,15 +208,15 @@ void GrupoComensalesProcess::run(){
 	cout << "DEBUG: Iniciando grupo de comensales con pid: " << getpid() << endl;
 	llegar();
 
-	//comer();
-	cout << getpid() << " " << "INFO: Grupo de comensales comiendo" << endl;
-	sleep(TIEMPO_COMER);
+	comer();
+//	cout << getpid() << " " << "INFO: Grupo de comensales comiendo" << endl;
+//	sleep(TIEMPO_COMER);
 
 
 	irse();
 }
 
-GrupoComensalesProcess::~GrupoComensalesProcess() {
+void GrupoComensalesProcess::liberarMemoriasCompartidas(){
 	this->shmPersonasLiving->liberar();
 
 	for (unsigned int i = 0; i < shmMesasLibres->size(); i++){
@@ -215,4 +228,9 @@ GrupoComensalesProcess::~GrupoComensalesProcess() {
 	}
 }
 
+GrupoComensalesProcess::~GrupoComensalesProcess() {
+	liberarMemoriasCompartidas();
+}
+
 } /* namespace std */
+

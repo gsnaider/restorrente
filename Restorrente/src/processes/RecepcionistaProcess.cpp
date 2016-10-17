@@ -18,7 +18,7 @@ RecepcionistaProcess::RecepcionistaProcess(Semaforo* semRecepcionistasLibres, Se
 }
 
 void RecepcionistaProcess::run(){
-	cout << getpid() << " " << "DEBUG: Iniciando recepcionista con pid: " << getpid() << endl;
+	cout << getpid() << " " << "DEBUG: Iniciando recepcionista" << endl;
 
 	//TODO Ver si hay mejor forma que while(true).
 	while (true){

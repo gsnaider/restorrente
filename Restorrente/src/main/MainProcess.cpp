@@ -62,7 +62,7 @@ void MainProcess::iniciarProcesosMozo(){
 		pid_t idMozo = fork();
 
 		if (idMozo == 0){
-			MozoProcess mozo(pipeLlamadosAMozos, pipePedidosACocinar,
+			MozoProcess mozo(pipeLlamadosAMozos, pipePedidosACocinar, semLlamadosAMozos,
 					semsComidaEnMesas, shmComidaEnMesas, semsLlegoComida,
 					semsFacturas, shmFacturas, semCajaB, shmCaja, semsMesaPago);
 			mozo.run();
@@ -101,6 +101,7 @@ void MainProcess::inicializarSemaforos(){
 	semMesasLibres = new Semaforo(SEM_MESAS_LIBRES_INIT_FILE, cantMesas, 0);
 	semPersonasLivingB = new Semaforo(SEM_PERSONAS_LIVING_INIT_FILE, 1, 0);
 	semCajaB = new Semaforo(SEM_CAJA_INIT_FILE, 1, 0);
+	semLlamadosAMozos = new Semaforo(SEM_LLAMADOS_MOZOS_INIT_FILE, 1, 0);
 
 	for(int i = 0; i < cantMesas; i++){
 		semsLlegoComida->push_back(new Semaforo(SEMS_LLEGO_COMIDA_INIT_FILE, 0, i));
@@ -240,6 +241,9 @@ void MainProcess::eliminarSemaforos(){
 
 	semCajaB->eliminar();
 	delete semCajaB;
+
+	semLlamadosAMozos->eliminar();
+	delete semLlamadosAMozos;
 
 	for(int i = 0; i < cantMesas; i++){
 		semsLlegoComida->at(i)->eliminar();

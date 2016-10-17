@@ -24,7 +24,7 @@ private:
 
 public:
 
-	static const char SEPARADOR = '%';
+	static const char SEPARADOR = ',';
 
 	static const int PEDIDO = 1;
 	static const int COMIDA = 2;
@@ -36,7 +36,7 @@ public:
 	static string serializar(Comida comida);
 	static string serializar(PedidoCuenta pedidoCuenta);
 
-	static int getTipoDato(string data);
+	static int getTipoLlamado(string data);
 
 	static Pedido deserializarPedido(string pedidoStr);
 	static Comida deserializarComida(string comidaStr);

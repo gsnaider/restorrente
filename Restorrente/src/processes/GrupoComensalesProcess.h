@@ -12,6 +12,7 @@
 #include "../utils/ipc/semaphore/Semaforo.h"
 #include "../utils/ipc/pipe/Pipe.h"
 #include "../model/Menu.h"
+#include "../model/Pedido.h"
 #include "RecepcionistaProcess.h"
 #include "../main/MainProcess.h"
 
@@ -55,7 +56,11 @@ private:
 
 	int obtenerNumeroMesa();
 
+	Pedido generarPedido();
+
 	void inicializarMemoriasCompartidas();
+
+	void liberarMemoriasCompartidas();
 
 
 public:

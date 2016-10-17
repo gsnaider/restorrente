@@ -11,10 +11,17 @@
 namespace std {
 
 class RandomUtil {
+
+private:
+
+	static bool seeded;
+
 public:
 	RandomUtil();
 
 	static double randomCeroUno();
+
+	static void seed();
 
 	static int randomInt(int max);
 

@@ -25,7 +25,7 @@ LlamadoAMozoSerializer::LlamadoAMozoSerializer() {
 }
 
 string LlamadoAMozoSerializer::serializar(Pedido pedido){
-	string pedidoStr = SEPARADOR + intToString(PEDIDO) + SEPARADOR;
+	string pedidoStr = intToString(PEDIDO) + SEPARADOR;
 
 	pedidoStr = pedidoStr + intToString(pedido.getMesa()) + SEPARADOR;
 	pedidoStr = pedidoStr + intToString(pedido.getPlatos().size()) + SEPARADOR;
@@ -36,7 +36,7 @@ string LlamadoAMozoSerializer::serializar(Pedido pedido){
 	}
 
 	int length = pedidoStr.length();
-	pedidoStr  = intToString(length) + pedidoStr;
+	pedidoStr  = intToString(length) + SEPARADOR + pedidoStr;
 
 	return pedidoStr;
 
@@ -44,7 +44,7 @@ string LlamadoAMozoSerializer::serializar(Pedido pedido){
 
 string LlamadoAMozoSerializer::serializar(Comida comida) {
 
-	string comidaStr = SEPARADOR + intToString(COMIDA) + SEPARADOR;
+	string comidaStr = intToString(COMIDA) + SEPARADOR;
 
 	comidaStr = comidaStr + intToString(comida.getMesa()) + SEPARADOR;
 	comidaStr = comidaStr + intToString(comida.getPlatos().size()) + SEPARADOR;
@@ -55,19 +55,19 @@ string LlamadoAMozoSerializer::serializar(Comida comida) {
 	}
 
 	int length = comidaStr.length();
-	comidaStr  = intToString(length) + comidaStr;
+	comidaStr  = intToString(length) + SEPARADOR + comidaStr;
 
 	return comidaStr;
 }
 
 string LlamadoAMozoSerializer::serializar(PedidoCuenta pedidoCuenta) {
 
-	string pedidoCuentaStr = SEPARADOR + intToString(PEDIDO_CUENTA) + SEPARADOR;
+	string pedidoCuentaStr = intToString(PEDIDO_CUENTA) + SEPARADOR;
 
 	pedidoCuentaStr = pedidoCuentaStr + intToString(pedidoCuenta.getMesa()) + SEPARADOR;
 
 	int length = pedidoCuentaStr.length();
-	pedidoCuentaStr  = intToString(length) + pedidoCuentaStr;
+	pedidoCuentaStr  = intToString(length) + SEPARADOR + pedidoCuentaStr;
 
 	return pedidoCuentaStr;
 
@@ -81,7 +81,6 @@ Pedido LlamadoAMozoSerializer::deserializarPedido(string pedidoStr) {
 	string nombrePlato;
 	string precioPlato;
 
-	getline(ss, aux, SEPARADOR); //Primer separador
 	getline(ss, aux, SEPARADOR); //Tipo de dato
 	getline(ss, mesaStr, SEPARADOR);
 
@@ -110,7 +109,6 @@ Comida LlamadoAMozoSerializer::deserializarComida(string comidaStr) {
 	string nombrePlato;
 	string precioPlato;
 
-	getline(ss, aux, SEPARADOR); //Primer separador
 	getline(ss, aux, SEPARADOR); //Tipo de dato
 	getline(ss, mesaStr, SEPARADOR);
 
@@ -137,7 +135,6 @@ PedidoCuenta LlamadoAMozoSerializer::deserializarPedidoCuenta(
 	string aux;
 	string mesaStr;
 
-	getline(ss, aux, SEPARADOR); //Primer separador
 	getline(ss, aux, SEPARADOR); //Tipo de dato
 	getline(ss, mesaStr, SEPARADOR);
 
@@ -147,7 +144,7 @@ PedidoCuenta LlamadoAMozoSerializer::deserializarPedidoCuenta(
 
 }
 
-int LlamadoAMozoSerializer::getTipoDato(string data) {
+int LlamadoAMozoSerializer::getTipoLlamado(string data) {
 
 	string aux;
 	string tipoDatoStr;
